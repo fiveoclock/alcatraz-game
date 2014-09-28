@@ -2,4 +2,4 @@
 
 mkdir -p build/classes
 
-javac -d build/classes src/java/calculator/client/*.java src/java/calculator/server/*.java src/java/calculator/common/*.java
+javac -d build/classes src/calculator/client/*.java src/calculator/server/*.java src/calculator/common/*.java
