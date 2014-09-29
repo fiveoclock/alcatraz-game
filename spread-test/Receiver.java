@@ -1,24 +1,31 @@
 import spread.*; 
+import java.net.*;
 
-public class SpreadMember {
+public class Receiver {
 
   public static void main(String args[]) {
+	try {
 
-      	System.out.println("Starting spread member...");
-	SpreadConnection connection = new SpreadConnection();
-	connection.connect(InetAddress.getByName("localhost"), 0, "privatename", false, true);
+		System.out.println("Starting spread member...");
+		SpreadConnection connection = new SpreadConnection();
+		connection.connect(InetAddress.getByName("localhost"), 0, "receiver", false, true);
 
-      	System.out.println("Joining group...");
-	SpreadGroup group = new SpreadGroup();
-	group.join(connection, "group");
+		System.out.println("Joining group...");
+		SpreadGroup group = new SpreadGroup();
+		group.join(connection, "group");
 
-	while (true) {
-		SpreadMessage message = connection.receive(); 
+		while (true) {
+			SpreadMessage message = connection.receive(); 
 
-		if(message.isRegular())
-		    System.out.println("New message from " + message.getSender());
-		else
-		    System.out.println("New membership message from " + message.getMembershipInfo().getGroup());
+			if(message.isRegular())
+			    System.out.println("New message from " + message.getSender());
+			else
+			    System.out.println("New membership message from " + message.getMembershipInfo().getGroup());
+		}
 	}
+	catch (Exception e) {
+                System.out.println("Trouble!");
+                e.printStackTrace();
+        }
   }
 }

@@ -8,7 +8,7 @@ public class Sender {
 	try {
 		System.out.println("Starting spread member...");
 		SpreadConnection connection = new SpreadConnection();
-		connection.connect(InetAddress.getByName("localhost"), 0, "privatename", false, true);
+		connection.connect(InetAddress.getByName("localhost"), 0, "sender", false, true);
 
 		System.out.println("Joining group...");
 		SpreadGroup group = new SpreadGroup();
