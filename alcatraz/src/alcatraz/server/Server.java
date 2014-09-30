@@ -10,7 +10,7 @@ import alcatraz.IServerException;
 import alcatraz.IServer;
 
 public class Server extends UnicastRemoteObject implements IServer {
-	
+	// TEST2
 	/**
 	 * 
 	 */
@@ -104,5 +104,7 @@ public class Server extends UnicastRemoteObject implements IServer {
 		}
 		return true;
 	}
+	
+	
 
 }
