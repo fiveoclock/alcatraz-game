@@ -1,13 +1,15 @@
 package alcatraz.client;
+import java.util.*;
 import java.rmi.Naming;
 
 import alcatraz.IServerException;
 import alcatraz.IServer;
+import alcatraz.server.Server;
 
 
 public class Client {
 
-	private String spielerName = new String("mumphi");
+	private String spielerName;// = new String("mumphi");
 	private int spielerID;
 	
 	// ================================================================================
@@ -16,7 +18,7 @@ public class Client {
 	
 	public Client() {
 		setSpielerID(this.spielerID);
-
+		setSpielerName(this.spielerName);
 	}
 	
 	// ================================================================================
@@ -28,9 +30,24 @@ public class Client {
 		Client c = new Client();
 		System.out.println("SpielerID: "+ c.spielerID);
 		
+		
+		Scanner sc = new Scanner(System.in);
+	    System.out.print("Spielername: ");
+	    String eingabe = sc.next();
+		c.setSpielerName(eingabe);
+		System.out.println("SpielerName: "+ c.spielerName);
+		
+		
 		try { 
 			  IServer IS = (IServer)Naming.lookup("rmi://localhost:1099/RegistrationService");
-		      System.out.print("Registration proceed..."); System.out.print(IS.register(c.spielerID, c.spielerName));
+		      System.out.print("Registration proceed..."); System.out.println(IS.register(c.spielerID, c.spielerName));
+		      
+		      if (IS.register(c.spielerID, c.spielerName)== true) {
+		    	  System.out.println("Registration OK!");
+		         }
+		      else { 
+		    	  System.out.println("Registration False! Program closed!");
+		    	   }
 		      
 		      
 		    } catch (Exception e) {
