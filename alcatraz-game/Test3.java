@@ -9,12 +9,12 @@ import at.falb.games.alcatraz.api.Prisoner;
  * A test class initializing a local Alcatraz game -- illustrating how
  * to use the Alcatraz API.
  */
-public class Test implements MoveListener {
+public class Test3 implements MoveListener {
 
     private Alcatraz other[] = new Alcatraz[4];
     private int numPlayer = 2;
 
-    public Test() {
+    public Test3() {
     }
     
     public void setOther(int i, Alcatraz t) {
@@ -48,25 +48,25 @@ public class Test implements MoveListener {
      * @param args Command line args
      */
     public static void main(String[] args) {
-        Test t1 = new Test();
-        Test t2 = new Test();
-//        Test t3 = new Test();
+        Test3 t1 = new Test3();
+        Test3 t2 = new Test3();
+        Test3 t3 = new Test3();
         
         Alcatraz a1 = new Alcatraz();
         Alcatraz a2 = new Alcatraz();
-//        Alcatraz a3 = new Alcatraz();
+        Alcatraz a3 = new Alcatraz();
         
-        t1.setNumPlayer(2);
-        t2.setNumPlayer(2);
-//        t1.setNumPlayer(3);
-//        t2.setNumPlayer(3);
-//        t3.setNumPlayer(3);
+//        t1.setNumPlayer(2);
+//        t2.setNumPlayer(2);
+        t1.setNumPlayer(3);
+        t2.setNumPlayer(3);
+        t3.setNumPlayer(3);
 
-        a1.init(2, 0);
-        a2.init(2, 1);
-//        a1.init(3, 0);
-//        a2.init(3, 1);
-//        a3.init(3, 2);
+//        a1.init(2, 0);
+//        a2.init(2, 1);
+        a1.init(3, 0);
+        a2.init(3, 1);
+        a3.init(3, 2);
         
         a1.getPlayer(0).setName("Player 1");
         a1.getPlayer(1).setName("Player 2");
@@ -79,22 +79,22 @@ public class Test implements MoveListener {
 //        a3.getPlayer(0).setName("Player 3");
         
         t1.setOther(0, a2);
-//        t1.setOther(1, a3);
+        t1.setOther(1, a3);
         t2.setOther(0, a1);
-//        t2.setOther(1, a3);
-//        t3.setOther(0, a1);
-//        t3.setOther(1, a2);
+        t2.setOther(1, a3);
+        t3.setOther(0, a1);
+        t3.setOther(1, a2);
         
         a1.showWindow();
         a1.addMoveListener(t1);
         a2.showWindow();
         a2.addMoveListener(t2);
-//        a3.showWindow();
-//        a3.addMoveListener(t3);
+        a3.showWindow();
+        a3.addMoveListener(t3);
         
         a1.start();
         a2.start();
-//        a3.start();
+        a3.start();
     }
 
 }
