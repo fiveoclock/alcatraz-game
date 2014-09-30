@@ -6,7 +6,7 @@ package alcatraz;
  * @author  Lorenz Froihofer
  * @version $Id$
  */
-public class CommunicationException extends java.lang.Exception {
+public class IServerException extends java.lang.Exception {
   
   /**
 	 * 
@@ -16,7 +16,7 @@ public class CommunicationException extends java.lang.Exception {
 /**
    * Creates a new instance of <code>CalculatorException</code> without detail message.
    */
-  public CommunicationException() {
+  public IServerException() {
   }
   
   
@@ -24,7 +24,7 @@ public class CommunicationException extends java.lang.Exception {
    * Constructs an instance of <code>CalculatorException</code> with the specified detail message.
    * @param msg the detail message.
    */
-  public CommunicationException(String msg) {
+  public IServerException(String msg) {
     super(msg);
   }
   
@@ -38,7 +38,7 @@ public class CommunicationException extends java.lang.Exception {
    *              (A <code>null</code> value is permitted, and indicates that
    *              the cause is nonexistent or unknown.)
    */
-  public CommunicationException(String msg, Throwable cause) {
+  public IServerException(String msg, Throwable cause) {
     super(msg,cause);
   }
   
@@ -50,7 +50,7 @@ public class CommunicationException extends java.lang.Exception {
    *              (A <code>null</code> value is permitted, and indicates that
    *              the cause is nonexistent or unknown.)
    */
-  public CommunicationException(Throwable cause) {
+  public IServerException(Throwable cause) {
     super(cause);
   }
 }
