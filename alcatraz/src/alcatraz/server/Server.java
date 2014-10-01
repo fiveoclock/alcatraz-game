@@ -10,7 +10,7 @@ import alcatraz.IServerException;
 import alcatraz.IServer;
 
 public class Server extends UnicastRemoteObject implements IServer {
-	
+		
 	/**
 	 * 
 	 */
@@ -18,8 +18,8 @@ public class Server extends UnicastRemoteObject implements IServer {
 	// ================================================================================
 	// ================================================================================
 	// GLOBAL VARIABLES
-	static ArrayList<Integer> spielerIDList = new ArrayList();
-	static ArrayList<String> spielerNameList = new ArrayList();
+	static ArrayList<Integer> spielerIDList = new ArrayList<Integer>();
+	static ArrayList<String> spielerNameList = new ArrayList<String>();
 
 	// ================================================================================
 	// ================================================================================
@@ -76,7 +76,7 @@ public class Server extends UnicastRemoteObject implements IServer {
 
 	@Override
 	public boolean register(int spielerID, String spielerName) throws IServerException, RemoteException {
-		//if (checkPlayerList(spielerID, spielerName) == true) throw new IServerException("Name und/oder ID ist schon vergeben!");
+		if (checkPlayerList(spielerID, spielerName) == false) throw new IServerException("Name und/oder ID ist schon vergeben!");
 		
 		if (Server.spielerIDList.size()<4) {
 			Server.spielerIDList.add(spielerID);
@@ -93,12 +93,16 @@ public class Server extends UnicastRemoteObject implements IServer {
 	}
 
 	public boolean checkPlayerList(int spielerID, String spielerName){
-		int i=0;
-		for (i=0; i<= Server.spielerNameList.size();i++){
-			if (Server.spielerIDList.get(i) == spielerID || Server.spielerNameList.get(i) == spielerName) {
-				System.out.println("Name und/oder ID ist schon vergeben!");
-				return false;
-				
+		int i;
+		if (Server.spielerIDList == null || Server.spielerIDList.size() == 0 || Server.spielerNameList == null || Server.spielerNameList.size() == 0 ) {
+			return true;
+			}
+		else{
+			for (i=0; i< Server.spielerNameList.size();i++){
+				if (Server.spielerIDList.get(i) == spielerID || Server.spielerNameList.get(i) == spielerName) {
+					System.out.println("Name und/oder ID ist schon vergeben!");
+					return false;
+				}
 
 			}
 		}

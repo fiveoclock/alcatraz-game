@@ -9,7 +9,7 @@ import alcatraz.server.Server;
 
 public class Client {
 
-	private String spielerName;// = new String("mumphi");
+	private String spielerName;
 	private int spielerID;
 	
 	// ================================================================================
@@ -36,13 +36,15 @@ public class Client {
 	    String eingabe = sc.next();
 		c.setSpielerName(eingabe);
 		System.out.println("SpielerName: "+ c.spielerName);
-		
+		boolean message;
 		
 		try { 
 			  IServer IS = (IServer)Naming.lookup("rmi://localhost:1099/RegistrationService");
-		      System.out.print("Registration proceed..."); System.out.println(IS.register(c.spielerID, c.spielerName));
+		      System.out.print("Registration proceed...");
+		      message = IS.register(c.spielerID, c.spielerName);
+		      System.out.println(message);
 		      
-		      if (IS.register(c.spielerID, c.spielerName)== true) {
+		      if (message== true) {
 		    	  System.out.println("Registration OK!");
 		         }
 		      else { 
@@ -50,7 +52,11 @@ public class Client {
 		    	   }
 		      
 		      
-		    } catch (Exception e) {
+		    } catch (IServerException ISe){
+		    	System.err.println("Registration throw Exception: "+ISe.getMessage());
+		    	ISe.printStackTrace();
+		    }
+			  catch (Exception e) {
 		      System.err.println("Something did not work, see stack trace.");
 		      e.printStackTrace();
 		    }
