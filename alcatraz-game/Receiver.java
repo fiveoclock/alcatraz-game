@@ -17,8 +17,11 @@ public class Receiver {
 		while (true) {
 			SpreadMessage message = connection.receive(); 
 
-			if(message.isRegular())
-			    System.out.println("New message from " + message.getSender());
+			if(message.isRegular()) {
+				String s = new String(message.getData());
+
+			    System.out.println("New message from " + message.getSender() + ": "+ s);
+			}
 			else
 			    System.out.println("New membership message from " + message.getMembershipInfo().getGroup());
 		}

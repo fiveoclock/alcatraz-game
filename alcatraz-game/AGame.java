@@ -10,120 +10,240 @@ import javax.swing.JTextField;
 
 import spread.*;
 import java.net.*;
+import java.io.*;
 
 /**
  * A AGame class initializing a local Alcatraz game -- illustrating how
  * to use the Alcatraz API.
  */
 public class AGame implements MoveListener {
+	private Alcatraz other[] = new Alcatraz[4]; //not used
+	private int numPlayer = 2;
 
-    private Alcatraz other[] = new Alcatraz[4];
-    private int numPlayer = 2;
-    
-    private String username;
-    private String host;
-    private String group;
+	private String username;
+	private String serverHost;
+	private String group = "maulwurf";
+	private String spreadHost = "localhost";
 
-    public AGame() {
-    }
-    
-    public void setOther(int i, Alcatraz t) {
-        this.other[i] = t;
-    }
-    
-    public int getNumPlayer() {
-        return numPlayer;
-    }
+	private int myId;
+	private Player playerList[];
 
-    public void setNumPlayer(int numPlayer) {
-        this.numPlayer = numPlayer;
-    }
+	SpreadConnection spread = new SpreadConnection();
+	private Alcatraz a = new Alcatraz();
 
-    public void moveDone(Player player, Prisoner prisoner, int rowOrCol, int row, int col) {
-        System.out.println("moving " + prisoner + " to " + (rowOrCol == Alcatraz.ROW ? "row" : "col") + " " + (rowOrCol == Alcatraz.ROW ? row : col));
-        for (int i = 0; i < getNumPlayer() - 1; i++) {
-            other[i].doMove(other[i].getPlayer(player.getId()), other[i].getPrisoner(prisoner.getId()), rowOrCol, row, col);
-        }
-    }
+	public AGame() {
+	}
 
-    public void undoMove() {
-         System.out.println("Undoing move");
-    }
-    
-    public void gameWon(Player player) {
-        System.out.println("Player " + player.getId() + " wins.");
-    }
+	public void setOther(int i, Alcatraz t) {
+	    this.other[i] = t;
+	}
 
-    public void startDialog(String[] args) {
-		// Erstellung Array vom Datentyp Object, Hinzufügen der Komponenten		
-		JTextField name = new JTextField();
-		JTextField host = new JTextField();
-		JTextField group = new JTextField();
-		Object[] message = {"Name", name, 
-        	"Spread Host", host,
-        	"Group", group
-        };
-        
-        if (args.length >= 3) {
-			name.setText(args[0]);
-			host.setText(args[1]);
-			group.setText(args[2]);
+	public int getNumPlayer() {
+	    return numPlayer;
+	}
+
+	public void setNumPlayer(int numPlayer) {
+	    this.numPlayer = numPlayer;
+	}
+
+	public void moveDone(Player player, Prisoner prisoner, int rowOrCol, int row, int col) {
+		System.out.println("moving " + prisoner + " to " + (rowOrCol == Alcatraz.ROW ? "row" : "col") + " " + (rowOrCol == Alcatraz.ROW ? row : col));
+		for (int i = 0; i < getNumPlayer() - 1; i++) {
+			//sendMessage("p:"+prisoner+" > "+rowOrCol+":"+row+":"+col);
+			sendObject(prisoner);
+		}
+	}
+
+	public void undoMove() {
+		System.out.println("Undoing move");
+	}
+
+	public void gameWon(Player player) {
+		System.out.println("Player " + player.getId() + " wins.");
+	}
+
+	public void parseAttributes(String[] args) {
+		if (args.length > 0)
+			this.username = args[0];
+		if (args.length > 1)
+			this.serverHost = args[1];
+		if (args.length > 2)
+			this.group = args[2];
+		if (args.length > 3)
+			this.spreadHost = args[3];
+		if (args.length > 4)
+			this.myId = Integer.parseInt(args[4]);
+	}
+	
+	public boolean register() {
+		// sending register request to server (with username + group)
+		try {
+			Thread.sleep(2000); // show wait message
+		}
+		catch (Exception e) {
+			System.out.println("Trouble!");
+			e.printStackTrace();
 		}
 
-        JOptionPane pane = new JOptionPane( message, 
+		// if successfull 
+		// server sends us our id + array with other players (playerId, playerName)
+
+		this.myId = this.myId; // to be replaced later
+		Player playerList[] = new Player[2];
+		playerList[0] = new Player(0);
+		playerList[0].setName("Helga");
+		playerList[1] = new Player(1);
+		playerList[1].setName("Gerhard");
+
+		playerList[this.myId].setName(this.username);
+		setNumPlayer(2);
+		// if error return false
+
+		return true;
+	}
+
+	
+	public boolean startDialog() {
+		// Erstellung Array vom Datentyp Object, Hinzufügen der Komponenten		
+		JTextField name = new JTextField(this.username);
+		JTextField serverHost = new JTextField(this.serverHost);
+		JTextField group = new JTextField(this.group);
+		JTextField spreadHost = new JTextField(this.spreadHost);
+		
+		Object[] message = {
+		  "Name", name,
+		  "Server Host", serverHost,
+		  "Spread Group", group,
+		  "Spread Host", spreadHost
+		};
+
+		JOptionPane pane = new JOptionPane( message, 
 		  JOptionPane.PLAIN_MESSAGE, 
 		  JOptionPane.OK_CANCEL_OPTION);
 		pane.createDialog(null, "Alcatraz").setVisible(true);
-		
-		System.out.println("Name: " + name.getText() + ", Host: " + host.getText());
+
 		this.username = name.getText();
-		this.host = host.getText();
+		this.serverHost = serverHost.getText();
 		this.group = group.getText();
+		this.spreadHost = spreadHost.getText();
+		
+		if (this.username.isEmpty() || this.serverHost.isEmpty() || this.group.isEmpty() || this.spreadHost.isEmpty()) {
+			return false;
+		}
+		return true;
 	}
-    
-    public void joinGroup() {
+
+	public boolean joinGroup() {
 		try {
 			System.out.println("Connecting to spread deamon...");
-			SpreadConnection connection = new SpreadConnection();
-			connection.connect(InetAddress.getByName(this.host), 0, this.username, false, true);
+			this.spread.connect(InetAddress.getByName(this.spreadHost), 0, this.myId+"", false, true);
 
 			System.out.println("Joining group...");
 			SpreadGroup group = new SpreadGroup();
-			group.join(connection, this.group);
+			group.join(this.spread, this.group);
+			return true;
 		} 
+		catch (Exception e) {
+			System.out.println("Trouble!");
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public void sendMessage(String msg) {
+		SpreadMessage message = new SpreadMessage();
+		message.setReliable();
+		message.addGroup(this.group);
+		message.setData(msg.getBytes());
+		try {
+			this.spread.multicast(message);
+		}
 		catch (Exception e) {
 			System.out.println("Trouble!");
 			e.printStackTrace();
 		}
 	}
-    
-    /**
-     * @param args Command line args
-     */
-    public static void main(String[] args) {
-		
-        AGame t1 = new AGame();
+	
+	public void sendObject(Object obj) {
+		SpreadMessage message = new SpreadMessage();
+		message.setReliable();
+		message.addGroup(this.group);
+		message.setData(serialize(obj));
+		try {
+			this.spread.multicast(message);
+		}
+		catch (Exception e) {
+			System.out.println("Trouble!");
+			e.printStackTrace();
+		}
+	}
 
-		t1.startDialog(args);
-		t1.joinGroup();
-		
-		Alcatraz a1 = new Alcatraz();
-		t1.setNumPlayer(2);
+	public void startGame() {
+		a.init(getNumPlayer(), this.myId);	// a2.init(2, 1);	// a1.init(3, 0);
+//		t1.setOther(0, a2);
+//		t1.setOther(1, a3);
+		a.showWindow();
+		a.addMoveListener(this);
+		a.start();
+	}
 
-        a1.init(2, 0);
-//        a2.init(2, 1);
-//        a1.init(3, 0);
-        
-        a1.getPlayer(0).setName("Player 1");
-        a1.getPlayer(1).setName("Player 2");
-        
-//        t1.setOther(0, a2);
-//        t1.setOther(1, a3);
-        
-        a1.showWindow();
-        a1.addMoveListener(t1);
-        
-        a1.start();
+	public static byte[] serialize(Object obj) {
+		try {
+			ByteArrayOutputStream b = new ByteArrayOutputStream();
+			ObjectOutputStream o = new ObjectOutputStream(b);
+			o.writeObject(obj);
+			return b.toByteArray();
+		}
+		catch (Exception e) {
+			System.out.println("Trouble!");
+			e.printStackTrace();
+		}
+		return null;
     }
 
+	public static Object deserialize(byte[] bytes) {
+		try {
+			ByteArrayInputStream b = new ByteArrayInputStream(bytes);
+			ObjectInputStream o = new ObjectInputStream(b);
+			return o.readObject();
+		}
+		catch (Exception e) {
+			System.out.println("Trouble!");
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+
+
+	 /* @param args Command line args
+	 */
+	public static void main(String[] args) {
+
+		AGame t1 = new AGame();
+
+		t1.parseAttributes(args);
+
+		// while (true) {
+			t1.startDialog();
+			if (t1.register() == true) {
+				if (t1.joinGroup() == true) {
+					t1.startGame();
+
+					Alcatraz a1 = new Alcatraz();
+					//t1.setNumPlayer(2);
+
+//					a1.init(this.playerList.length, this.myId);	// a2.init(2, 1);	// a1.init(3, 0);
+
+//					t1.setOther(0, a2);
+//					t1.setOther(1, a3);
+
+//					a1.showWindow();
+//					a1.addMoveListener(t1);
+
+//					a1.start();
+				}
+			}
+		//}
+	}
 }
