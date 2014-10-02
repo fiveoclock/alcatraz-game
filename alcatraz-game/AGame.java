@@ -12,11 +12,15 @@ import spread.*;
 import java.net.*;
 import java.io.*;
 
+
+
+
+
 /**
  * A AGame class initializing a local Alcatraz game -- illustrating how
  * to use the Alcatraz API.
  */
-public class AGame implements MoveListener {
+public class AGame implements MoveListener, AdvancedMessageListener {
 	private Alcatraz other[] = new Alcatraz[4]; //not used
 	private int numPlayer = 2;
 
@@ -50,8 +54,22 @@ public class AGame implements MoveListener {
 		System.out.println("moving " + prisoner + " to " + (rowOrCol == Alcatraz.ROW ? "row" : "col") + " " + (rowOrCol == Alcatraz.ROW ? row : col));
 		for (int i = 0; i < getNumPlayer() - 1; i++) {
 			//sendMessage("p:"+prisoner+" > "+rowOrCol+":"+row+":"+col);
-			sendObject(prisoner);
+			Move m = new Move(player, prisoner, rowOrCol, row, col);
+			sendObject(m);
 		}
+	}
+
+	public void membershipMessageReceived(SpreadMessage message) {
+		String s = new String(message.getData());
+		System.out.println("New membership message from " + message.getMembershipInfo().getGroup());
+	}
+
+	public void regularMessageReceived(SpreadMessage message) {
+		String s = new String(message.getData());
+		System.out.println("New message from " + message.getSender() + ": "+ s);
+
+		Move m = (Move) deserialize(message.getData());
+		a.doMove(m.getPlayer(), m.getPrisoner(), m.getRowOrCol(), m.getRow(), m.getCol());
 	}
 
 	public void undoMove() {
@@ -137,6 +155,7 @@ public class AGame implements MoveListener {
 		try {
 			System.out.println("Connecting to spread deamon...");
 			this.spread.connect(InetAddress.getByName(this.spreadHost), 0, this.myId+"", false, true);
+			this.spread.add(this);
 
 			System.out.println("Joining group...");
 			SpreadGroup group = new SpreadGroup();
@@ -149,7 +168,7 @@ public class AGame implements MoveListener {
 			return false;
 		}
 	}
-	
+
 	public void sendMessage(String msg) {
 		SpreadMessage message = new SpreadMessage();
 		message.setReliable();
@@ -163,13 +182,14 @@ public class AGame implements MoveListener {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void sendObject(Object obj) {
 		SpreadMessage message = new SpreadMessage();
 		message.setReliable();
 		message.addGroup(this.group);
-		message.setData(serialize(obj));
+
 		try {
+			message.setData(serialize(obj));
 			this.spread.multicast(message);
 		}
 		catch (Exception e) {
@@ -177,6 +197,7 @@ public class AGame implements MoveListener {
 			e.printStackTrace();
 		}
 	}
+
 
 	public void startGame() {
 		a.init(getNumPlayer(), this.myId);	// a2.init(2, 1);	// a1.init(3, 0);
