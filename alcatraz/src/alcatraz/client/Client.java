@@ -44,7 +44,7 @@ public class Client {
 		      message = IS.register(c.spielerID, c.spielerName);
 		      System.out.println(message);
 		      
-		      if (message== true) {
+		      if (message == true) {
 		    	  System.out.println("Registration OK!");
 		         }
 		      else { 
