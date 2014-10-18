@@ -46,11 +46,11 @@ public class Server extends UnicastRemoteObject implements IServer {
 	
 	private void publishObject() {
 		try {
-			/*
+			
 			InetAddress address = InetAddress.getLocalHost();
 			String ipAddress = address.getHostAddress();
 			System.out.println(ipAddress);
-			*/
+			
 			
 			int ID = (int) (Math.random() * 99 + 1);
 			System.out.println(ID);
@@ -58,9 +58,10 @@ public class Server extends UnicastRemoteObject implements IServer {
 			System.out.println("Server is starting");
 			System.out.println("Server Parameter is now setting...");
 			System.out.println("Serverparameters are set!");
-
+			System.out.println("ServerIP: "+ipAddress);
+			
 			IServer IS = new Server();
-			Naming.rebind("rmi://localhost:1099/RegistrationService", IS);
+			Naming.rebind("rmi://"+ipAddress+":1099/RegistrationService", IS);
 			System.out.println("RegistrationServer is up and running.");
 		} catch (Exception e) {
 			System.out.println("Error!");
@@ -73,7 +74,9 @@ public class Server extends UnicastRemoteObject implements IServer {
 	// ================================================================================
 	// ================================================================================
 	// METHODS
-
+	
+	//Obwohl mit der Methode checkPlayerList überprüft wird, ob es den Spielernamen und/oder ID schon gibt, wird
+	// kein Exception ausgelöst und einfach hinzugefügt, Manuel
 	@Override
 	public boolean register(int spielerID, String spielerName) throws IServerException, RemoteException {
 		if (checkPlayerList(spielerID, spielerName) == false) throw new IServerException("Name und/oder ID ist schon vergeben!");
@@ -99,7 +102,8 @@ public class Server extends UnicastRemoteObject implements IServer {
 			}
 		else{
 			for (i=0; i< Server.spielerNameList.size();i++){
-				if (Server.spielerIDList.get(i) == spielerID || Server.spielerNameList.get(i) == spielerName) {
+				
+				if (Server.spielerNameList.get(i) == spielerName || Server.spielerIDList.get(i) == spielerID) {
 					System.out.println("Name und/oder ID ist schon vergeben!");
 					return false;
 				}
@@ -107,6 +111,27 @@ public class Server extends UnicastRemoteObject implements IServer {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public boolean startNow() throws RemoteException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean unregister(int spielerID, String spielerName) throws IServerException, RemoteException {
+		int i;
+		for(i=0; i< Server.spielerIDList.size(); i++)
+			if(Server.spielerIDList.get(i) == spielerID && Server.spielerNameList.get(i) == spielerName){
+				Server.spielerIDList.remove(i);
+				Server.spielerNameList.remove(i);
+				System.out.println(spielerIDList);
+				System.out.println(spielerNameList);
+				return true;
+			}
+		
+		return false;
 	}
 
 
