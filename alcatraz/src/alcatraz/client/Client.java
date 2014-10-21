@@ -14,17 +14,15 @@ import alcatraz.IClient;
 import alcatraz.Player;
 
 public class Client extends UnicastRemoteObject implements IClient {
+
 	private static final long serialVersionUID = 1L;
-	private String spielerName;
-	private int spielerID;
 
 	// ================================================================================
 	// ================================================================================
 	// CONSTRUCTOR
 
 	public Client() throws RemoteException {
-		setSpielerID(this.spielerID);
-		setSpielerName(this.spielerName);
+
 	}
 
 	// ================================================================================
@@ -33,28 +31,42 @@ public class Client extends UnicastRemoteObject implements IClient {
 
 	public static void main(String[] args) {
 
+		// TODO create a GUI class and create the object here instead of the
+		// console input - downloadlink for gui designer (eclipse luna):
+		// http://download.eclipse.org/windowbuilder/WB/release/R201406251200/4.4/
+
+		// Create new Player that will be registered at the server
+		Player p = new Player();
+		
+		String serverIP = inputServerIP();
+		p.setPlayerName(inputName());
+		
+		
+		registerPlayer(serverIP, p);
+
+	}
+
+	// ================================================================================
+	// ================================================================================
+	// METHODS
+
+	// ================================================================================
+	// server lookup and register player at server
+	/**
+	 * Does the server lookup and registers the passed Player.
+	 * 
+	 * @param serverIP
+	 *            ip of the server
+	 * @param p
+	 *            player to register
+	 * @author manuel
+	 */
+	private static void registerPlayer(String serverIP, Player p) {
+		
 		try {
-			Client c = new Client();
-			System.out.println("SpielerID: " + c.spielerID);
 
-			Player p = new Player();
-			
-			// Eingabe der IP-Adresse des Servers
-			Scanner sr = new Scanner(System.in);
-			System.out.print("IP-Adresse des Servers: ");
-			String ServerIP = sr.next();
-			System.out.println("ServerIP: " + ServerIP);
-
-			// Eingabe des Spielernames
-			Scanner sc = new Scanner(System.in);
-			System.out.print("Spielername: ");
-			String eingabe = sc.next();
-			p.setPlayerName(eingabe);
-			System.out.println("SpielerName: "+ p.getPlayerName());
-
-			// 
 			boolean messageRegister;
-			IServer IS = (IServer) Naming.lookup("rmi://" + ServerIP
+			IServer IS = (IServer) Naming.lookup("rmi://" + serverIP
 					+ ":1099/RegistrationService");
 			System.out.print("Registration proceed...");
 			messageRegister = IS.register(p);
@@ -62,26 +74,9 @@ public class Client extends UnicastRemoteObject implements IClient {
 
 			if (messageRegister == true) {
 				System.out.println("Registration OK!");
-			}
-			else {
+			} else {
 				System.out.println("Registration False! Program closed!");
 			}
-			
-			// Funktioniert noch ned; Manuel
-			/*
-			boolean messageUnregister;
-			BufferedReader console = new BufferedReader(new InputStreamReader(
-					System.in));
-			System.out.print("Wollen Sie sich abmelden? (y/n): ");
-			String zeile = null;
-			zeile = console.readLine();
-			String yes = "y";
-			if (zeile.contains(yes) == true) {
-				System.out.print("UnRegistration proceed...");
-				messageUnregister = IS.unregister(c.spielerID, c.spielerName);
-				System.out.println(messageUnregister);
-			}
-			*/
 
 		} catch (IServerException ISe) {
 			System.err.println("Registration throw Exception: "
@@ -91,34 +86,42 @@ public class Client extends UnicastRemoteObject implements IClient {
 			System.err.println("Something did not work, see stack trace.");
 			e.printStackTrace();
 		}
-		
 	}
 
 	// ================================================================================
+	// console stuff
+	/**
+	 * 
+	 * @return serverIP
+	 */
+	private static String inputServerIP() {
+		// Eingabe der IP-Adresse des Servers
+		Scanner sr = new Scanner(System.in);
+		System.out.print("IP-Adresse des Servers: ");
+		String serverIP = sr.next();
+		System.out.println("ServerIP: " + serverIP);
+
+		return serverIP;
+	}
+
+	private static String inputName() {
+		// Eingabe des Spielernames
+		Scanner sc = new Scanner(System.in);
+		System.out.print("Spielername: ");
+		String input = sc.next();
+		System.out.println("SpielerName: " + input);
+
+		return input;
+	}
+
 	// ================================================================================
-	// METHODS
-
-	public String getSpielerName() {
-		return spielerName;
-	}
-
-	public void setSpielerName(String spielerName) {
-		this.spielerName = spielerName;
-	}
-
-	public int getSpielerID() {
-		return spielerID;
-	}
-
-	public void setSpielerID(int spielerID) {
-		this.spielerID = (int) (Math.random() * 99 + 1);
-	}
-
+	// test
 	public boolean TEST(int spielerID, String spielerName)
 			throws IServerException, RemoteException {
 		return true;
 	}
 
+	// ================================================================================
 	@Override
 	// Original wäre: doMoveRemote(Player player, Prisoner prisoner, int
 	// rowOrCol, int row, int col)

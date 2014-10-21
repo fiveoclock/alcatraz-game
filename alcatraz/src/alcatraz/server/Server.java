@@ -83,12 +83,14 @@ public class Server extends UnicastRemoteObject implements IServer {
 	public boolean register(Player p) throws IServerException, RemoteException {
 
 		if (playerNameList.contains(p.getPlayerName())) {
-			System.out.println("That name is already taken.");
+			System.out.println("That name(" + p.getPlayerName()
+					+ ") is already taken.");
 			return false;
 		} else {
 			if (playerNameList.size() < 4) {
 				playerNameList.add(p.getPlayerName());
-				System.out.println("You have been successfully registered.");
+				System.out.println("\"" + p.getPlayerName()
+						+ "\" has been successfully registered.");
 				return true;
 			} else {
 				System.out
@@ -99,8 +101,7 @@ public class Server extends UnicastRemoteObject implements IServer {
 		}
 	}
 
-
-	/** 
+	/**
 	 * Unregisters a player from the server.
 	 * 
 	 * @see alcatraz.IServer#unregister(alcatraz.Player)
