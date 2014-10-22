@@ -16,30 +16,27 @@ public class Player implements Serializable{
 	
 	// ================================================================================
 	
-	public String playerName;
-	public int playerID;
+	public String name;
+	
+	// ================================================================================
+	// CONSTRUCTOR
+	public Player() {
+		
+	}
 	
 	// ================================================================================
 	
 	public String getPlayerName() {
-		return playerName;
+		return name;
 	}
 
 	public void setPlayerName(String playerName) {
-		this.playerName = playerName;
-	}
-
-	public int getPlayerID() {
-		return playerID;
-	}
-
-	public void setPlayerID(int playerID) {
-		this.playerID = playerID;
+		this.name = playerName;
 	}
 
 	@Override
 	public String toString() {
-		return playerName;
+		return name;
 	}
 
 	

@@ -41,8 +41,12 @@ public class Client extends UnicastRemoteObject implements IClient {
 		String serverIP = inputServerIP();
 		p.setPlayerName(inputName());
 		
-		
 		registerPlayer(serverIP, p);
+		
+		//TODO publish ClientObject
+		//TODO bind other client objects to pass the moves
+		//TODO first client (or server) starts new game and does the first move
+		//TODO first client passes move to other players and the next clients turn begins
 
 	}
 
@@ -104,6 +108,10 @@ public class Client extends UnicastRemoteObject implements IClient {
 		return serverIP;
 	}
 
+	/**
+	 * 
+	 * @return playerName
+	 */
 	private static String inputName() {
 		// Eingabe des Spielernames
 		Scanner sc = new Scanner(System.in);
@@ -116,11 +124,25 @@ public class Client extends UnicastRemoteObject implements IClient {
 
 	// ================================================================================
 	// test
+	//TODO remove this later if not needed anymore 
 	public boolean TEST(int spielerID, String spielerName)
 			throws IServerException, RemoteException {
 		return true;
 	}
 
+	// ================================================================================
+	// ================================================================================
+	// GAME STUFF
+	
+	/**
+	 * @see alcatraz.IClient#startGame(java.util.ArrayList)
+	 */
+	public void startGame(ArrayList<Player> playerList) throws IClientException, RemoteException {
+		//TODO bind the other clients from the list here
+		//TODO start alcatraz here
+		//TODO do game stuff
+	}
+	
 	// ================================================================================
 	@Override
 	// Original wäre: doMoveRemote(Player player, Prisoner prisoner, int
@@ -128,7 +150,7 @@ public class Client extends UnicastRemoteObject implements IClient {
 	// macht aber nur einen Error; Manuel
 	public void doMoveRemote(String player, int prisoner, int roworCol,
 			int row, int col) throws IClientException, RemoteException {
-		// TODO Auto-generated method stub
+		
 
 	}
 

@@ -20,6 +20,7 @@ public class Server extends UnicastRemoteObject implements IServer {
 	// ================================================================================
 	// GLOBAL VARIABLES
 
+	static ArrayList<Player> playerList = new ArrayList<Player>();
 	static ArrayList<String> playerNameList = new ArrayList<String>();
 
 	// ================================================================================
@@ -81,14 +82,14 @@ public class Server extends UnicastRemoteObject implements IServer {
 	 */
 	@Override
 	public boolean register(Player p) throws IServerException, RemoteException {
-
-		if (playerNameList.contains(p.getPlayerName())) {
+		
+		if (playerList.toString().contains(p.name)) {
 			System.out.println("That name(" + p.getPlayerName()
 					+ ") is already taken.");
 			return false;
 		} else {
-			if (playerNameList.size() < 4) {
-				playerNameList.add(p.getPlayerName());
+			if (playerList.size() < 4) {
+				playerList.add(p);
 				System.out.println("\"" + p.getPlayerName()
 						+ "\" has been successfully registered.");
 				return true;
@@ -97,8 +98,7 @@ public class Server extends UnicastRemoteObject implements IServer {
 						.println("There cannot be more than 4 players registered.");
 				return false;
 			}
-
-		}
+		}		
 	}
 
 	/**
@@ -112,13 +112,14 @@ public class Server extends UnicastRemoteObject implements IServer {
 			RemoteException {
 
 		// when the player is not in the list you cannot unregister him
-		if (!(playerNameList.contains(p.getPlayerName()))) {
-			System.out.println("There is no player with that name registered.");
-			return false;
-		} else {
-			playerNameList.remove(p.getPlayerName());
+		if (playerList.remove(p) == true) {
 			System.out.println("You have been successfully unregistered");
 			return true;
+		}
+		else {
+			System.out.println("There is no player called \"" + p.getPlayerName()
+					+ "\". No unregister possible.");
+			return false;
 		}
 
 	}
