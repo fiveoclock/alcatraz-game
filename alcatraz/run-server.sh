@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -cp build/classes calculator.server.CalculatorServer
+java -cp bin alcatraz.server.Server
