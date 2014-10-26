@@ -1,4 +1,4 @@
 #!/bin/bash
 
-export CLASSPATH=build/classes
+export CLASSPATH=bin
 rmiregistry

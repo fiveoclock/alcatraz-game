@@ -1,4 +1,4 @@
-// package at.falb.fh.vtsys;
+/// package at.falb.fh.vtsys;
 
 import at.falb.games.alcatraz.api.Alcatraz;
 import at.falb.games.alcatraz.api.MoveListener;
@@ -11,9 +11,6 @@ import javax.swing.JTextField;
 import spread.*;
 import java.net.*;
 import java.io.*;
-
-
-
 
 
 /**
