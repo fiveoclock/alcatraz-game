@@ -11,7 +11,7 @@ import alcatraz.IServerException;
 import alcatraz.IServer;
 import alcatraz.IClientException;
 import alcatraz.IClient;
-//import alcatraz.Player; // user provided Alcatraz player class
+//import alcatraz.Player; // use provided Alcatraz player class
 
 import at.falb.games.alcatraz.api.Alcatraz;
 import at.falb.games.alcatraz.api.MoveListener;
