@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -cp bin alcatraz.server.Server
+java -cp bin:bin/alcatraz-lib.jar alcatraz.server.Server

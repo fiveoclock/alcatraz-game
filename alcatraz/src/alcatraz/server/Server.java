@@ -10,7 +10,8 @@ import java.util.ArrayList;
 
 import alcatraz.IServerException;
 import alcatraz.IServer;
-import alcatraz.Player;
+import at.falb.games.alcatraz.api.Player;
+
 
 public class Server extends UnicastRemoteObject implements IServer {
 
@@ -80,17 +81,17 @@ public class Server extends UnicastRemoteObject implements IServer {
 	 * @see alcatraz.IServer#register(alcatraz.Player)
 	 * @author max
 	 */
-	@Override
+	//@Override
 	public boolean register(Player p) throws IServerException, RemoteException {
 		
-		if (playerList.toString().contains(p.name)) {
-			System.out.println("That name(" + p.getPlayerName()
+		if (playerList.toString().contains(p.getName())) {
+			System.out.println("That name(" + p.getName()
 					+ ") is already taken.");
 			return false;
 		} else {
 			if (playerList.size() < 4) {
 				playerList.add(p);
-				System.out.println("\"" + p.getPlayerName()
+				System.out.println("\"" + p.getName()
 						+ "\" has been successfully registered.");
 				return true;
 			} else {
@@ -107,7 +108,7 @@ public class Server extends UnicastRemoteObject implements IServer {
 	 * @see alcatraz.IServer#unregister(alcatraz.Player)
 	 * @author max
 	 */
-	@Override
+	//@Override
 	public boolean unregister(Player p) throws IServerException,
 			RemoteException {
 
@@ -117,7 +118,7 @@ public class Server extends UnicastRemoteObject implements IServer {
 			return true;
 		}
 		else {
-			System.out.println("There is no player called \"" + p.getPlayerName()
+			System.out.println("There is no player called \"" + p.getName()
 					+ "\". No unregister possible.");
 			return false;
 		}
@@ -129,5 +130,7 @@ public class Server extends UnicastRemoteObject implements IServer {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+
 
 }

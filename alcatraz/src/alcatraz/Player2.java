@@ -5,12 +5,15 @@ import java.io.Serializable;
 /**
  * This class represents a player who can be passed 
  * from the client to the server for registration
- * 
  * @author max
- * 
+ *
+ * =======
+ * alex: renamed Player class to Player2 because alcatraz-lib.jar already 
+ * provides a class named Player that has the same methods + some others. 
+ * Replaced all occurences of Player class with the provided one.
  *
  */
-public class Player implements Serializable{
+public class Player2 implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -20,7 +23,7 @@ public class Player implements Serializable{
 	
 	// ================================================================================
 	// CONSTRUCTOR
-	public Player() {
+	public Player2() {
 		
 	}
 	
@@ -39,6 +42,4 @@ public class Player implements Serializable{
 		return name;
 	}
 
-	
-	
 }

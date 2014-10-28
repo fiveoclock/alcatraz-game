@@ -4,6 +4,8 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
+import at.falb.games.alcatraz.api.Player;
+
 
 public interface IClient extends Remote {
 	
@@ -30,6 +32,5 @@ public interface IClient extends Remote {
 	 */
 	public void doMoveRemote(String player, int prisoner, int roworCol, int row, int col) throws IClientException, RemoteException;
 
-  
-  
+
 }

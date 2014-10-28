@@ -11,11 +11,26 @@ import alcatraz.IServerException;
 import alcatraz.IServer;
 import alcatraz.IClientException;
 import alcatraz.IClient;
-import alcatraz.Player;
+//import alcatraz.Player; // user provided Alcatraz player class
+
+import at.falb.games.alcatraz.api.Alcatraz;
+import at.falb.games.alcatraz.api.MoveListener;
+import at.falb.games.alcatraz.api.Player;
+import at.falb.games.alcatraz.api.Prisoner;
+
 
 public class Client extends UnicastRemoteObject implements IClient {
 
 	private static final long serialVersionUID = 1L;
+	
+	private String username;
+    private String serverHost;
+
+    private int myId;
+    private Player playerList[];
+
+    private Alcatraz a = new Alcatraz();
+
 
 	// ================================================================================
 	// ================================================================================
@@ -36,10 +51,10 @@ public class Client extends UnicastRemoteObject implements IClient {
 		// http://download.eclipse.org/windowbuilder/WB/release/R201406251200/4.4/
 
 		// Create new Player that will be registered at the server
-		Player p = new Player();
+		Player p = new Player(0);
 		
 		String serverIP = inputServerIP();
-		p.setPlayerName(inputName());
+		p.setName(inputName());
 		
 		registerPlayer(serverIP, p);
 		
@@ -137,15 +152,17 @@ public class Client extends UnicastRemoteObject implements IClient {
 	/**
 	 * @see alcatraz.IClient#startGame(java.util.ArrayList)
 	 */
+	@Override
 	public void startGame(ArrayList<Player> playerList) throws IClientException, RemoteException {
 		//TODO bind the other clients from the list here
 		//TODO start alcatraz here
 		//TODO do game stuff
+		System.out.println("kj");
 	}
 	
 	// ================================================================================
 	@Override
-	// Original wäre: doMoveRemote(Player player, Prisoner prisoner, int
+	// Original wï¿½re: doMoveRemote(Player player, Prisoner prisoner, int
 	// rowOrCol, int row, int col)
 	// macht aber nur einen Error; Manuel
 	public void doMoveRemote(String player, int prisoner, int roworCol,
@@ -153,5 +170,8 @@ public class Client extends UnicastRemoteObject implements IClient {
 		
 
 	}
+
+
+
 
 }
