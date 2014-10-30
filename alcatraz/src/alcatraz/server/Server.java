@@ -7,15 +7,27 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import alcatraz.IServerException;
 import alcatraz.IServer;
 import at.falb.games.alcatraz.api.Player;
 
+import spread.*;
+import java.net.*;
+import java.io.*;
 
-public class Server extends UnicastRemoteObject implements IServer {
+
+
+public class Server extends UnicastRemoteObject implements IServer, AdvancedMessageListener {
 
 	private static final long serialVersionUID = 1L;
+	
+	private int id = 0;
+	private String spreadHost = "localhost";
+	private String spreadGroup = "maulwurf";
+	private int numMembers;
+	private SpreadConnection spread = new SpreadConnection();
 
 	// ================================================================================
 	// ================================================================================
@@ -36,12 +48,125 @@ public class Server extends UnicastRemoteObject implements IServer {
 	// ================================================================================
 	// MAIN
 	public static void main(String[] args) throws RemoteException {
-
-		// publish the server object to the RMIregistry
+		
 		Server s = new Server();
-		s.publishObject();
+		
+		s.id = (int) (Math.random() * 99 + 1);
+		System.out.println("My ID: " + s.id);
+
+		// if spread group is successful
+		if (s.joinGroup()) {
+			// check if master server
+			if (true) {
+				// publish the server object to the RMIregistry
+				s.publishObject();
+			}
+		}
+		
+	}
+	
+	// ================================================================================
+	// ================================================================================
+	// Spread
+	
+	public boolean joinGroup() {
+		try {
+			System.out.println("Connecting to spread deamon...");
+			this.spread.connect(InetAddress.getByName(this.spreadHost), 0, this.id+"", false, true);
+			this.spread.add(this);
+			
+			System.out.println("Joining group...");
+			SpreadGroup group = new SpreadGroup();
+			group.join(this.spread, this.spreadGroup);
+			return true;
+		} 
+		catch (Exception e) {
+			System.out.println("Trouble!");
+			e.printStackTrace();
+			return false;
+		}
 	}
 
+	// called when group membership changed
+	public void membershipMessageReceived(SpreadMessage msg) {
+		MembershipInfo info = msg.getMembershipInfo();
+		
+		if (info.isCausedByJoin())  {
+			System.out.println("Spread: " + info.getJoined() + " joined group / " + info.getMembers().length + " connected / current members:");
+		}
+		if (info.isCausedByDisconnect())  {
+			System.out.println("Spread: " + info.getDisconnected() + " got disconnected from group / " + info.getMembers().length + " connected / current members:");
+		}
+		if (info.isCausedByLeave())  {
+			System.out.println("Spread: " + info.getLeft() + " left group / " + info.getMembers().length + " connected / current members:");
+		}
+		
+		for (SpreadGroup g : info.getMembers() ) {
+			System.out.println("  member: "+ g.toString());
+		}
+	}
+
+	public void regularMessageReceived(SpreadMessage message) {
+		String s = new String(message.getData());
+		System.out.println("New message from " + message.getSender() + ": "+ s);
+	}
+
+	public void sendMessage(String msg) {
+		SpreadMessage message = new SpreadMessage();
+		message.setReliable();
+		message.addGroup(this.spreadGroup);
+		message.setData(msg.getBytes());
+		try {
+			this.spread.multicast(message);
+		}
+		catch (Exception e) {
+			System.out.println("Trouble!");
+			e.printStackTrace();
+		}
+	}
+
+	public void sendObject(Object obj) {
+		SpreadMessage message = new SpreadMessage();
+		message.setReliable();
+		message.addGroup(this.spreadGroup);
+
+		try {
+			message.setData(serialize(obj));
+			this.spread.multicast(message);
+		}
+		catch (Exception e) {
+			System.out.println("Trouble!");
+			e.printStackTrace();
+		}
+	}
+	
+	public static byte[] serialize(Object obj) {
+		try {
+			ByteArrayOutputStream b = new ByteArrayOutputStream();
+			ObjectOutputStream o = new ObjectOutputStream(b);
+			o.writeObject(obj);
+			return b.toByteArray();
+		}
+		catch (Exception e) {
+			System.out.println("Trouble!");
+			e.printStackTrace();
+		}
+		return null;
+    }
+
+	public static Object deserialize(byte[] bytes) {
+		try {
+			ByteArrayInputStream b = new ByteArrayInputStream(bytes);
+			ObjectInputStream o = new ObjectInputStream(b);
+			return o.readObject();
+		}
+		catch (Exception e) {
+			System.out.println("Trouble!");
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	// ================================================================================
 	// ================================================================================
 	// REGISTRY STUFF
@@ -53,8 +178,7 @@ public class Server extends UnicastRemoteObject implements IServer {
 			String ipAddress = address.getHostAddress();
 			System.out.println(ipAddress);
 
-			int ID = (int) (Math.random() * 99 + 1);
-			System.out.println(ID);
+
 
 			System.out.println("Server is starting");
 			System.out.println("Server Parameter is now setting...");
