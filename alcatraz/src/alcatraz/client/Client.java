@@ -56,7 +56,8 @@ public class Client extends UnicastRemoteObject implements IClient {
 		String serverIP = inputServerIP();
 		p.setName(inputName());
 		
-		registerPlayer(serverIP, p);
+		unregisterPlayer(serverIP, p);
+		//registerPlayer(serverIP, p);
 		
 		//TODO publish ClientObject
 		//TODO bind other client objects to pass the moves
@@ -95,6 +96,31 @@ public class Client extends UnicastRemoteObject implements IClient {
 				System.out.println("Registration OK!");
 			} else {
 				System.out.println("Registration False! Program closed!");
+			}
+
+		} catch (IServerException ISe) {
+			System.err.println("Registration throw Exception: "
+					+ ISe.getMessage());
+			ISe.printStackTrace();
+		} catch (Exception e) {
+			System.err.println("Something did not work, see stack trace.");
+			e.printStackTrace();
+		}
+	}
+	
+	private static void unregisterPlayer(String serverIP, Player p) {
+		try {
+			boolean messageRegister;
+			IServer IS = (IServer) Naming.lookup("rmi://" + serverIP
+					+ ":1099/RegistrationService");
+			System.out.print("Registration proceed...");
+			messageRegister = IS.unregister(p);
+			System.out.println(messageRegister);
+
+			if (messageRegister == true) {
+				System.out.println("Unregistration OK!");
+			} else {
+				System.out.println("Unregister failed!");
 			}
 
 		} catch (IServerException ISe) {

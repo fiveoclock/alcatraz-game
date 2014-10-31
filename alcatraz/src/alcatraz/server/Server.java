@@ -33,7 +33,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	// GLOBAL VARIABLES
 
 	static ArrayList<Player> playerList = new ArrayList<Player>();
-	static ArrayList<String> playerNameList = new ArrayList<String>();
+	//static ArrayList<String> playerNameList = new ArrayList<String>();
 
 	// ================================================================================
 	// ================================================================================
@@ -58,7 +58,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	
 	// ================================================================================
 	// ================================================================================
-	// Spread
+	// Spread membership handling
 	
 	public boolean joinGroup() {
 		try {
@@ -168,9 +168,16 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		return lowestId;
 	}
 	
+	// ================================================================================
+	// ================================================================================
+	// Spread message handling
+	
 	public void regularMessageReceived(SpreadMessage message) {
-		String s = new String(message.getData());
-		System.out.println("New message from " + message.getSender() + ": "+ s);
+		// check if message was sent by myself
+		if ( ! message.getSender().equals(this.spreadSelf) ) {
+			System.out.println("Received updated PlayerList from" + message.getSender());
+			playerList = (ArrayList<Player>) deserialize(message.getData());
+		}
 	}
 
 	public void sendMessage(String msg) {
@@ -179,7 +186,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		message.addGroup(this.spreadGroup);
 		message.setData(msg.getBytes());
 		try {
-			this.spread.multicast(message);
+			server.spread.multicast(message);
 		}
 		catch (Exception e) {
 			System.out.println("Trouble!");
@@ -194,7 +201,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 
 		try {
 			message.setData(serialize(obj));
-			this.spread.multicast(message);
+			server.spread.multicast(message);
 		}
 		catch (Exception e) {
 			System.out.println("Trouble!");
@@ -264,20 +271,21 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	 */
 	//@Override
 	public boolean register(Player p) throws IServerException, RemoteException {
-		
 		if (playerList.toString().contains(p.getName())) {
-			System.out.println("That name(" + p.getName()
-					+ ") is already taken.");
+			System.out.println("That name(" + p.getName() + ") is already taken.");
 			return false;
-		} else {
+		}
+		else {
 			if (playerList.size() < 4) {
 				playerList.add(p);
-				System.out.println("\"" + p.getName()
-						+ "\" has been successfully registered.");
+				// send updated playerlist to backup servers
+				sendObject(playerList);
+				
+				System.out.println("\"" + p.getName() + "\" has been successfully registered.");
 				return true;
-			} else {
-				System.out
-						.println("There cannot be more than 4 players registered.");
+			}
+			else {
+				System.out.println("There cannot be more than 4 players registered.");
 				return false;
 			}
 		}		
@@ -291,15 +299,16 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	 */
 	//@Override
 	public boolean unregister(Player p) throws IServerException, RemoteException {
-
 		// when the player is not in the list you cannot unregister him
 		if (playerList.remove(p) == true) {
+			// send updated playerlist to backup servers
+			sendObject(playerList);
+			
 			System.out.println("You have been successfully unregistered");
 			return true;
 		}
 		else {
-			System.out.println("There is no player called \"" + p.getName()
-					+ "\". No unregister possible.");
+			System.out.println("There is no player called \"" + p.getName() );
 			return false;
 		}
 	}
@@ -309,7 +318,4 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		// TODO Auto-generated method stub
 		return false;
 	}
-
-
-
 }
