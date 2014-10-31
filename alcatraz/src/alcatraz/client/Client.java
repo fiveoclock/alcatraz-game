@@ -56,8 +56,20 @@ public class Client extends UnicastRemoteObject implements IClient {
 		String serverIP = inputServerIP();
 		p.setName(inputName());
 		
+		// register
+		registerPlayer(serverIP, p);
+		
+		// wait - just for testing
+		try {
+			Thread.sleep(10000); // show wait message
+		}
+		catch (Exception e) {
+			System.out.println("Trouble!");
+			e.printStackTrace();
+		}
+		
+		// unregister again
 		unregisterPlayer(serverIP, p);
-		//registerPlayer(serverIP, p);
 		
 		//TODO publish ClientObject
 		//TODO bind other client objects to pass the moves
