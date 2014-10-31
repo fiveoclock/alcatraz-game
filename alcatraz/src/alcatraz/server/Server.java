@@ -19,9 +19,12 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 
 	private static final long serialVersionUID = 1L;
 	
+	private static Server server;
+	
 	private int id = 0;
 	private String spreadHost = "localhost";
 	private String spreadGroup = "maulwurf";
+	private SpreadGroup spreadSelf;
 	private int numMembers;
 	private SpreadConnection spread = new SpreadConnection();
 
@@ -44,21 +47,13 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	// ================================================================================
 	// MAIN
 	public static void main(String[] args) throws RemoteException {
+		server = new Server();
 		
-		Server s = new Server();
-		
-		s.id = (int) (Math.random() * 99 + 1);
-		System.out.println("My ID: " + s.id);
+		server.id = (int) (Math.random() * 99 + 1);
+		System.out.println("My ID: " + server.id);
 
 		// if spread group is successful
-		if (s.joinGroup()) {
-			// check if master server
-			if (true) {
-				// publish the server object to the RMIregistry
-				s.publishObject();
-			}
-		}
-		
+		server.joinGroup();
 	}
 	
 	// ================================================================================
@@ -67,17 +62,28 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	
 	public boolean joinGroup() {
 		try {
-			System.out.println("Connecting to spread deamon...");
+			// connecting to spread
+			System.out.print("Connecting to spread deamon ("+this.spreadHost+") ... ");
 			this.spread.connect(InetAddress.getByName(this.spreadHost), 0, this.id+"", false, true);
+			System.out.print("connected ... ");
+			
+			// adding this class as listener
 			this.spread.add(this);
 			
-			System.out.println("Joining group...");
+			// joining spread group
 			SpreadGroup group = new SpreadGroup();
+			System.out.println("joining group ");
 			group.join(this.spread, this.spreadGroup);
+			
+			
+			// remembering myself for later use
+			spreadSelf = this.spread.getPrivateGroup();
 			return true;
 		} 
 		catch (Exception e) {
-			System.out.println("Trouble!");
+			System.out.println("Spread error\n" +
+					"  Please make sure that the Spread Daemon is running" +
+					"  This error can also be caused by non-unique server IDs");
 			e.printStackTrace();
 			return false;
 		}
@@ -90,32 +96,78 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		
 		if (info.isCausedByJoin())  {
 			System.out.println("Spread: " + info.getJoined() + " joined group / " + num + " connected / current members:");
+			printMemberList(info);
 			
 			// is it me who joined the group?
-			if (this.spread.getPrivateGroup().equals(info.getJoined())) {
-				System.out.println("I joined");
+			if (info.getJoined().equals(this.spreadSelf) ) {
+				System.out.println("  > Message caused by me");
+				
+				// to master or not to master?
+				// start server if I'm the only member
+				if (num == 1) {
+					server.publishObject();
+				}
 			}
-			// wenn num == 1 -> become master
-			// else
-				// wenn num > 1
-					// höchste id wird master - master id speichern
 		}
 		if (info.isCausedByDisconnect())  {
 			System.out.println("Spread: " + info.getDisconnected() + " got disconnected from group / " + num + " connected / current members:");
-			// wenn backup disconnected
-				// nur nachricht
-			// wenn master disconnected
-				// höchste id wird master - master id speichern
+			printMemberList(info);
+			
+			// to master or not to master?
+			// start server if I'm the only remaining member
+			if (num == 1) {
+				server.publishObject();
+			}
+			// if there are more than one
+			else if (num >= 2) {
+				// start server if I have the lowest id
+				if (server.id <= getLowestId(info)) {
+					System.out.println("Becomming master server because of lowest ID");
+					server.publishObject();
+				}
+			}
 		}
 		if (info.isCausedByLeave())  {
 			System.out.println("Spread: " + info.getLeft() + " left group / " + num + " connected / current members:");
+			printMemberList(info);
+			
+			// to master or not to master?
+			// start server if I'm the only remaining member
+			if (num == 1) {
+				server.publishObject();
+			}
+			// if there are more than one
+			else if (num >= 2) {
+				// start server if I have the lowest id
+				if (server.id <= getLowestId(info)) {
+					System.out.println("Becomming master server because of lowest ID");
+					server.publishObject();
+				}
+			}
 		}
-		
+
+	}
+	
+	private void printMemberList(MembershipInfo info) {
 		for (SpreadGroup g : info.getMembers() ) {
 			System.out.println("  member: "+ g.toString());
 		}
 	}
-
+	
+	private int getLowestId(MembershipInfo info) {
+		int lowestId = Integer.MAX_VALUE; 
+		for (SpreadGroup g : info.getMembers() ) {
+			int memberID = Integer.valueOf(g.toString().split("#")[1]);
+			
+			//System.out.print("\n" + lowestId + " <= " + memberID);
+			if (memberID <= lowestId) {
+				//System.out.print(" -- true");
+				lowestId = memberID;
+			}
+		}
+		return lowestId;
+	}
+	
 	public void regularMessageReceived(SpreadMessage message) {
 		String s = new String(message.getData());
 		System.out.println("New message from " + message.getSender() + ": "+ s);
@@ -183,21 +235,16 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 
 	private void publishObject() {
 		try {
-
 			InetAddress address = InetAddress.getLocalHost();
 			String ipAddress = address.getHostAddress();
-			System.out.println(ipAddress);
-
-
 
 			System.out.println("Server is starting");
-			System.out.println("Server Parameter is now setting...");
-			System.out.println("Serverparameters are set!");
-			System.out.println("ServerIP: " + ipAddress);
+			//System.out.println("Server Parameter is now setting...");
+			//System.out.println("Serverparameters are set!");
+			System.out.println("ServerIP: " + ipAddress + "\n");
 
 			IServer IS = new Server();
-			Naming.rebind("rmi://" + ipAddress + ":1099/RegistrationService",
-					IS);
+			Naming.rebind("rmi://" + ipAddress + ":1099/RegistrationService", IS);
 			System.out.println("RegistrationServer is up and running.");
 		} catch (Exception e) {
 			System.out.println("Error!");
