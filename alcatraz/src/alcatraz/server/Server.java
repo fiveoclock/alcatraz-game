@@ -7,17 +7,13 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import alcatraz.IServerException;
 import alcatraz.IServer;
 import at.falb.games.alcatraz.api.Player;
 
 import spread.*;
-import java.net.*;
 import java.io.*;
-
-
 
 public class Server extends UnicastRemoteObject implements IServer, AdvancedMessageListener {
 
@@ -90,15 +86,29 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	// called when group membership changed
 	public void membershipMessageReceived(SpreadMessage msg) {
 		MembershipInfo info = msg.getMembershipInfo();
+		int num = info.getMembers().length;
 		
 		if (info.isCausedByJoin())  {
-			System.out.println("Spread: " + info.getJoined() + " joined group / " + info.getMembers().length + " connected / current members:");
+			System.out.println("Spread: " + info.getJoined() + " joined group / " + num + " connected / current members:");
+			
+			// is it me who joined the group?
+			if (this.spread.getPrivateGroup().equals(info.getJoined())) {
+				System.out.println("I joined");
+			}
+			// wenn num == 1 -> become master
+			// else
+				// wenn num > 1
+					// höchste id wird master - master id speichern
 		}
 		if (info.isCausedByDisconnect())  {
-			System.out.println("Spread: " + info.getDisconnected() + " got disconnected from group / " + info.getMembers().length + " connected / current members:");
+			System.out.println("Spread: " + info.getDisconnected() + " got disconnected from group / " + num + " connected / current members:");
+			// wenn backup disconnected
+				// nur nachricht
+			// wenn master disconnected
+				// höchste id wird master - master id speichern
 		}
 		if (info.isCausedByLeave())  {
-			System.out.println("Spread: " + info.getLeft() + " left group / " + info.getMembers().length + " connected / current members:");
+			System.out.println("Spread: " + info.getLeft() + " left group / " + num + " connected / current members:");
 		}
 		
 		for (SpreadGroup g : info.getMembers() ) {
@@ -233,8 +243,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	 * @author max
 	 */
 	//@Override
-	public boolean unregister(Player p) throws IServerException,
-			RemoteException {
+	public boolean unregister(Player p) throws IServerException, RemoteException {
 
 		// when the player is not in the list you cannot unregister him
 		if (playerList.remove(p) == true) {
@@ -246,7 +255,6 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 					+ "\". No unregister possible.");
 			return false;
 		}
-
 	}
 
 	@Override
