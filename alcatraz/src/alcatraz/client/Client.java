@@ -13,6 +13,9 @@ import alcatraz.IClientException;
 import alcatraz.IClient;
 //import alcatraz.Player; // use provided Alcatraz player class
 
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+
 import at.falb.games.alcatraz.api.Alcatraz;
 import at.falb.games.alcatraz.api.MoveListener;
 import at.falb.games.alcatraz.api.Player;
@@ -23,10 +26,13 @@ public class Client extends UnicastRemoteObject implements IClient {
 
 	private static final long serialVersionUID = 1L;
 	
-	private String username;
-    private String serverHost;
+	private static Client c;
+	
+	private String name;
+    private String server;
 
     private int myId;
+    
     private Player playerList[];
 
     private Alcatraz a = new Alcatraz();
@@ -44,20 +50,40 @@ public class Client extends UnicastRemoteObject implements IClient {
 	// ================================================================================
 	// MAIN
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws RemoteException {
 
 		// TODO create a GUI class and create the object here instead of the
 		// console input - downloadlink for gui designer (eclipse luna):
 		// http://download.eclipse.org/windowbuilder/WB/release/R201406251200/4.4/
-
-		// Create new Player that will be registered at the server
+		
+		c = new Client();
 		Player p = new Player(0);
 		
-		String serverIP = inputServerIP();
-		p.setName(inputName());
+		if (args.length > 0)
+			p.setName(args[0]);
+		if (args.length > 1)
+			c.server = args[1];
+		
+		JTextField fName = new JTextField(p.getName());
+		JTextField fServer = new JTextField(c.server);
+		
+		Object[] message = {
+		  "Name", fName,
+		  "Server Host", fServer,
+		};
+
+
+		JOptionPane pane = new JOptionPane( message, 
+		  JOptionPane.PLAIN_MESSAGE, 
+		  JOptionPane.OK_CANCEL_OPTION);
+		pane.createDialog(null, "Alcatraz").setVisible(true);
+
+		// use input from dialog
+		p.setName(fName.getText());
+		c.server = fServer.getText();
 		
 		// register
-		registerPlayer(serverIP, p);
+		registerPlayer(c.server, p);
 		
 		// wait - just for testing
 		try {
@@ -69,7 +95,7 @@ public class Client extends UnicastRemoteObject implements IClient {
 		}
 		
 		// unregister again
-		unregisterPlayer(serverIP, p);
+		unregisterPlayer(c.server, p);
 		
 		//TODO publish ClientObject
 		//TODO bind other client objects to pass the moves
@@ -77,7 +103,7 @@ public class Client extends UnicastRemoteObject implements IClient {
 		//TODO first client passes move to other players and the next clients turn begins
 
 	}
-
+	
 	// ================================================================================
 	// ================================================================================
 	// METHODS
@@ -145,6 +171,7 @@ public class Client extends UnicastRemoteObject implements IClient {
 		}
 	}
 
+	
 	// ================================================================================
 	// console stuff
 	/**
