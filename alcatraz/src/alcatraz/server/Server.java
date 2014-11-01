@@ -25,7 +25,6 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	private String spreadHost = "localhost";
 	private String spreadGroup = "maulwurf";
 	private SpreadGroup spreadSelf;
-	private int numMembers;
 	private SpreadConnection spread = new SpreadConnection();
 
 	// ================================================================================
@@ -33,7 +32,6 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	// GLOBAL VARIABLES
 
 	static ArrayList<Player> playerList = new ArrayList<Player>();
-	//static ArrayList<String> playerNameList = new ArrayList<String>();
 
 	// ================================================================================
 	// ================================================================================
@@ -49,7 +47,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	public static void main(String[] args) throws RemoteException {
 		server = new Server();
 		
-		server.id = (int) (Math.random() * 99 + 1);
+		server.id = (int) (Math.random() * 999 + 1);
 		System.out.println("My ID: " + server.id);
 
 		// if spread group is successful
@@ -145,12 +143,15 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 				}
 			}
 		}
-
 	}
 	
 	private void printMemberList(MembershipInfo info) {
 		for (SpreadGroup g : info.getMembers() ) {
-			System.out.println("  member: "+ g.toString());
+			System.out.print("  member: "+ g.toString());
+			if (g.equals(this.spreadSelf) ) {
+				System.out.print("  (me)");
+			}
+			System.out.println();
 		}
 	}
 	
