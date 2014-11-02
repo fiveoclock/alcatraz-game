@@ -1,3 +1,5 @@
+.gitignore
+.settings
 .classpath
 *.class
 /bin/
