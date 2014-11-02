@@ -271,7 +271,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	 * @author max
 	 */
 	//@Override
-	public boolean register(Player p) throws IServerException, RemoteException {
+	public boolean register(Player p, int numPlayer) throws IServerException, RemoteException {
 		if (playerList.toString().contains(p.getName())) {
 			System.out.println("That name(" + p.getName() + ") is already taken.");
 			return false;
@@ -282,7 +282,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 				// send updated playerlist to backup servers
 				sendObject(playerList);
 				
-				System.out.println("\"" + p.getName() + "\" has been successfully registered.");
+				System.out.println("\"" + p.getName() + "\" has registered.");
 				return true;
 			}
 			else {
@@ -305,7 +305,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 			// send updated playerlist to backup servers
 			sendObject(playerList);
 			
-			System.out.println("You have been successfully unregistered");
+			System.out.println(p.getName() + " has un-registered");
 			return true;
 		}
 		else {

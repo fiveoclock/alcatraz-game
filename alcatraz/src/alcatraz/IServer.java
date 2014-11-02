@@ -15,7 +15,7 @@ public interface IServer extends Remote {
    * @throws IServerException
    * @throws RemoteException
    */
-  public boolean register(Player p) throws IServerException, RemoteException;
+  public boolean register(Player p, int numPlayer) throws IServerException, RemoteException;
   
   /**
    * 
