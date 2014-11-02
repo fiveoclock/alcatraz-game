@@ -34,6 +34,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	// GLOBAL VARIABLES
 
 	static ArrayList<RemotePlayer> playerList = new ArrayList<RemotePlayer>();
+	static ArrayList<Player> playerList2 = new ArrayList<Player>();
 
 	// ================================================================================
 	// ================================================================================
@@ -276,27 +277,27 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	//@Override
 	public boolean register(RemotePlayer p) throws IServerException, RemoteException {
 		if (playerList.toString().contains(p.getName())) {
-			System.out.println("A player by the name of " + p.getName() + " is already registered.");
+			System.out.println("That name(" + p.getName() + ") is already taken.");
 			return false;
 		}
-		playerList.add(p);
-		System.out.println("\"" + p.getName() + "\" has registered.");
-		
-		// count registered players
-		int count = 0;
-		for (RemotePlayer s : playerList ) {
-			if (s.getDesiredNumPlayers() == p.getDesiredNumPlayers()) {
-				count++;
+		// TODO - add code for the following:
+		// - add player to list
+		// - check if enough players have registered to start a game
+		// - if there are enough players call startNow() function
+		else {
+			if (playerList.size() < 4) {
+				playerList.add(p);
+				// send updated playerlist to backup servers
+				sendObject(playerList);
+				
+				System.out.println("\"" + p.getName() + "\" has registered.");
+				return true;
 			}
-		}
-		// if there are enough players start a game now
-		if (count == p.getDesiredNumPlayers()) {
-			System.out.println("Enough players registered to start a game - starting now.");
-			//startNow(p.getDesiredNumPlayers());
-		}
-		// synchronize list
-		sendObject(playerList);
-		return true;
+			else {
+				System.out.println("There cannot be more than 4 players registered.");
+				return false;
+			}
+		}		
 	}
 
 	/**
@@ -322,34 +323,8 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	}
 
 	@Override
-	public boolean startNow(int numPlayers) throws RemoteException {
-		ArrayList<RemotePlayer> gameList = new ArrayList<RemotePlayer>();
-		
-		// add Players to a gameList
-		int count = 0;
-		for (RemotePlayer p : playerList ) {
-			if (numPlayers == p.getDesiredNumPlayers()) {
-				gameList.add(p);
-			}
-			if (gameList.size() == numPlayers) {
-				break;
-			}
-		}
-		// invoke startNow on Client RMIs
-		// remove clients from playerList
-		for (RemotePlayer p : gameList ) {
-			System.out.print("Invoking start on \"" + p.getName() +" ... ");
-			// TODO: uncomment later
-			//if (p.startNow(gameList)) {
-			if (true) {  // just for debugging
-				System.out.print("success");
-				playerList.remove(p);
-			}
-			else {
-				playerList.remove(p);
-				return false;
-			}
-		}
-		return true;
+	public boolean startNow() throws RemoteException {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

@@ -6,7 +6,7 @@ import at.falb.games.alcatraz.api.Player;
 
 public interface IServer extends Remote {
 
-  public boolean startNow(int numPlayers) throws RemoteException;
+  public boolean startNow() throws RemoteException;
 
   /**
    * 
