@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 import alcatraz.IServerException;
 import alcatraz.IServer;
+import alcatraz.RemotePlayer;
+
 import at.falb.games.alcatraz.api.Player;
 
 import spread.*;
@@ -31,7 +33,8 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	// ================================================================================
 	// GLOBAL VARIABLES
 
-	static ArrayList<Player> playerList = new ArrayList<Player>();
+	static ArrayList<RemotePlayer> playerList = new ArrayList<RemotePlayer>();
+	static ArrayList<Player> playerList2 = new ArrayList<Player>();
 
 	// ================================================================================
 	// ================================================================================
@@ -177,7 +180,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		// check if message was sent by myself
 		if ( ! message.getSender().equals(this.spreadSelf) ) {
 			System.out.println("Received updated PlayerList from" + message.getSender());
-			playerList = (ArrayList<Player>) deserialize(message.getData());
+			playerList = (ArrayList<RemotePlayer>) deserialize(message.getData());
 		}
 	}
 
@@ -253,6 +256,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 
 			IServer IS = new Server();
 			Naming.rebind("rmi://" + ipAddress + ":1099/RegistrationService", IS);
+			
 			System.out.println("RegistrationServer is up and running.");
 		} catch (Exception e) {
 			System.out.println("Error!");
