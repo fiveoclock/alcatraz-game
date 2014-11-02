@@ -9,6 +9,7 @@ import alcatraz.IServerException;
 import alcatraz.IServer;
 import alcatraz.IClientException;
 import alcatraz.IClient;
+import alcatraz.RemotePlayer;
 //import alcatraz.Player; // use provided Alcatraz player class
 
 import at.falb.games.alcatraz.api.Alcatraz;
@@ -104,13 +105,13 @@ public class Client extends UnicastRemoteObject implements IClient,
 	 *            player to register
 	 * @author manuel
 	 */
-	public static void registerPlayer(String serverIP, Player p, int numPlayer) {
+	public static void registerPlayer(String serverIP, RemotePlayer p, int numPlayer) {
 		try {
 			boolean messageRegister;
 			IServer IS = (IServer) Naming.lookup("rmi://" + serverIP
 					+ ":1099/RegistrationService");
 			System.out.print("Registration proceed...");
-			messageRegister = IS.register(p, numPlayer);
+			messageRegister = IS.register(p);
 			System.out.println(messageRegister);
 
 			if (messageRegister == true) {
@@ -136,7 +137,7 @@ public class Client extends UnicastRemoteObject implements IClient,
 	 * @param serverIP
 	 * @param p
 	 */
-	public static void unregisterPlayer(String serverIP, Player p) {
+	public static void unregisterPlayer(String serverIP, RemotePlayer p) {
 
 		try {
 			boolean messageRegister;
