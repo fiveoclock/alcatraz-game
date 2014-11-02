@@ -22,21 +22,18 @@ import at.falb.games.alcatraz.api.Player;
 import at.falb.games.alcatraz.api.Prisoner;
 
 
-public class Client extends UnicastRemoteObject implements IClient {
+public class Client extends UnicastRemoteObject implements IClient, MoveListener {
 
 	private static final long serialVersionUID = 1L;
-	
-	private static Client c;
-	
+		
 	private String name;
     private String server;
 
     private int myId;
-    
     private Player playerList[];
-
+    private int numPlayer;
     private Alcatraz a = new Alcatraz();
-
+    
 
 	// ================================================================================
 	// ================================================================================
@@ -56,20 +53,24 @@ public class Client extends UnicastRemoteObject implements IClient {
 		// console input - downloadlink for gui designer (eclipse luna):
 		// http://download.eclipse.org/windowbuilder/WB/release/R201406251200/4.4/
 		
-		c = new Client();
+		Client c = new Client();
 		Player p = new Player(0);
 		
 		if (args.length > 0)
 			p.setName(args[0]);
 		if (args.length > 1)
 			c.server = args[1];
+		if (args.length > 2)
+			c.numPlayer = Integer.valueOf(args[2]);
 		
 		JTextField fName = new JTextField(p.getName());
 		JTextField fServer = new JTextField(c.server);
+		JTextField fNumPlayer = new JTextField(c.numPlayer);
 		
 		Object[] message = {
 		  "Name", fName,
 		  "Server Host", fServer,
+		  "Number of Players", fNumPlayer,
 		};
 
 
@@ -77,17 +78,20 @@ public class Client extends UnicastRemoteObject implements IClient {
 		  JOptionPane.PLAIN_MESSAGE, 
 		  JOptionPane.OK_CANCEL_OPTION);
 		pane.createDialog(null, "Alcatraz").setVisible(true);
-
+		
 		// use input from dialog
 		p.setName(fName.getText());
 		c.server = fServer.getText();
+		c.numPlayer = Integer.valueOf(fNumPlayer.getText());
 		
 		// register
-		registerPlayer(c.server, p);
+		registerPlayer(c.server, p, c.numPlayer);
+		
+		c.startGame();
 		
 		// wait - just for testing
 		try {
-			Thread.sleep(10000); // show wait message
+			Thread.sleep(20000); // show wait message
 		}
 		catch (Exception e) {
 			System.out.println("Trouble!");
@@ -104,6 +108,8 @@ public class Client extends UnicastRemoteObject implements IClient {
 
 	}
 	
+
+	
 	// ================================================================================
 	// ================================================================================
 	// METHODS
@@ -119,15 +125,13 @@ public class Client extends UnicastRemoteObject implements IClient {
 	 *            player to register
 	 * @author manuel
 	 */
-	private static void registerPlayer(String serverIP, Player p) {
-		
+	private static void registerPlayer(String serverIP, Player p, int numPlayer) {
 		try {
-
 			boolean messageRegister;
 			IServer IS = (IServer) Naming.lookup("rmi://" + serverIP
 					+ ":1099/RegistrationService");
 			System.out.print("Registration proceed...");
-			messageRegister = IS.register(p);
+			messageRegister = IS.register(p, numPlayer);
 			System.out.println(messageRegister);
 
 			if (messageRegister == true) {
@@ -147,6 +151,7 @@ public class Client extends UnicastRemoteObject implements IClient {
 	}
 	
 	private static void unregisterPlayer(String serverIP, Player p) {
+		
 		try {
 			boolean messageRegister;
 			IServer IS = (IServer) Naming.lookup("rmi://" + serverIP
@@ -171,37 +176,6 @@ public class Client extends UnicastRemoteObject implements IClient {
 		}
 	}
 
-	
-	// ================================================================================
-	// console stuff
-	/**
-	 * 
-	 * @return serverIP
-	 */
-	private static String inputServerIP() {
-		// Eingabe der IP-Adresse des Servers
-		Scanner sr = new Scanner(System.in);
-		System.out.print("IP-Adresse des Servers: ");
-		String serverIP = sr.next();
-		System.out.println("ServerIP: " + serverIP);
-
-		return serverIP;
-	}
-
-	/**
-	 * 
-	 * @return playerName
-	 */
-	private static String inputName() {
-		// Eingabe des Spielernames
-		Scanner sc = new Scanner(System.in);
-		System.out.print("Spielername: ");
-		String input = sc.next();
-		System.out.println("SpielerName: " + input);
-
-		return input;
-	}
-
 	// ================================================================================
 	// test
 	//TODO remove this later if not needed anymore 
@@ -213,6 +187,16 @@ public class Client extends UnicastRemoteObject implements IClient {
 	// ================================================================================
 	// ================================================================================
 	// GAME STUFF
+	
+	
+	public void startGame() {
+		a.init(2, this.myId);	// a2.init(2, 1);	// a1.init(3, 0);
+//		t1.setOther(0, a2);
+//		t1.setOther(1, a3);
+		a.showWindow();
+		a.addMoveListener(this);
+		a.start();
+	}
 	
 	/**
 	 * @see alcatraz.IClient#startGame(java.util.ArrayList)
@@ -236,6 +220,24 @@ public class Client extends UnicastRemoteObject implements IClient {
 
 	}
 
+
+	
+	public void moveDone(Player player, Prisoner prisoner, int rowOrCol, int row, int col) {
+		System.out.println("moving " + prisoner + " to " + (rowOrCol == Alcatraz.ROW ? "row" : "col") + " " + (rowOrCol == Alcatraz.ROW ? row : col));
+		for (int i = 0; i < getNumPlayer() - 1; i++) {
+			//sendMessage("p:"+prisoner+" > "+rowOrCol+":"+row+":"+col);
+			Move m = new Move(player, prisoner, rowOrCol, row, col);
+			//sendObject(m);
+		}
+	}
+	
+	public void gameWon(Player player) {
+		System.out.println("Player " + player.getId() + " wins.");
+	}
+	
+	public int getNumPlayer() {
+	    return numPlayer;
+	}
 
 
 
