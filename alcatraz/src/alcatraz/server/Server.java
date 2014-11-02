@@ -275,11 +275,15 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	 * @author max
 	 */
 	//@Override
-	public boolean register(Player p, int numPlayer) throws IServerException, RemoteException {
+	public boolean register(RemotePlayer p) throws IServerException, RemoteException {
 		if (playerList.toString().contains(p.getName())) {
 			System.out.println("That name(" + p.getName() + ") is already taken.");
 			return false;
 		}
+		// TODO - add code for the following:
+		// - add player to list
+		// - check if enough players have registered to start a game
+		// - if there are enough players call startNow() function
 		else {
 			if (playerList.size() < 4) {
 				playerList.add(p);
@@ -303,7 +307,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	 * @author max
 	 */
 	//@Override
-	public boolean unregister(Player p) throws IServerException, RemoteException {
+	public boolean unregister(RemotePlayer p) throws IServerException, RemoteException {
 		// when the player is not in the list you cannot unregister him
 		if (playerList.remove(p) == true) {
 			// send updated playerlist to backup servers
