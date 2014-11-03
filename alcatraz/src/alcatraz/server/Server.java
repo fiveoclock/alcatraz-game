@@ -12,7 +12,6 @@ import alcatraz.IServerException;
 import alcatraz.IServer;
 import alcatraz.RemotePlayer;
 
-import at.falb.games.alcatraz.api.Player;
 
 import spread.*;
 import java.io.*;
@@ -254,7 +253,8 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 			System.out.println("ServerIP: " + ipAddress + "\n");
 
 			IServer IS = new Server();
-			Naming.rebind("rmi://" + ipAddress + ":1099/RegistrationService", IS);
+			//Naming.rebind("rmi://" + ipAddress + ":1099/RegistrationService", IS);
+			Naming.rebind("rmi://127.0.0.1" + ":1099/RegistrationService", IS);
 			
 			System.out.println("RegistrationServer is up and running.");
 		} catch (Exception e) {

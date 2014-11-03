@@ -11,6 +11,7 @@ import alcatraz.IClientException;
 import alcatraz.IClient;
 //import alcatraz.Player; // use provided Alcatraz player class
 
+import alcatraz.RemotePlayer;
 import at.falb.games.alcatraz.api.Alcatraz;
 import at.falb.games.alcatraz.api.MoveListener;
 import at.falb.games.alcatraz.api.Player;
@@ -37,39 +38,9 @@ public class Client extends UnicastRemoteObject implements IClient,
 		
 		// a new client creates the gui in his constructor
 		Client c = new Client();
-
 		
 
 		/*
-		 * if (args.length > 0) p.setName(args[0]); if (args.length > 1)
-		 * c.server = args[1]; if (args.length > 2) c.numPlayer =
-		 * Integer.valueOf(args[2]);
-		 * 
-		 * JTextField fName = new JTextField(p.getName()); JTextField fServer =
-		 * new JTextField(c.server); JTextField fNumPlayer = new
-		 * JTextField(c.numPlayer);
-		 * 
-		 * Object[] message = { "Name", fName, "Server Host", fServer,
-		 * "Number of Players", fNumPlayer, };
-		 * 
-		 * 
-		 * JOptionPane pane = new JOptionPane( message,
-		 * JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-		 * pane.createDialog(null, "Alcatraz").setVisible(true);
-		 * 
-		 * // use input from dialog p.setName(fName.getText()); c.server =
-		 * fServer.getText(); c.numPlayer =
-		 * Integer.valueOf(fNumPlayer.getText());
-		 * 
-		 * // register registerPlayer(c.server, p, c.numPlayer);
-		 * 
-		 * c.startGame();
-		 * 
-		 * // wait - just for testing try { Thread.sleep(20000); // show wait
-		 * message } catch (Exception e) { System.out.println("Trouble!");
-		 * e.printStackTrace(); }
-		 * 
-		 * // unregister again unregisterPlayer(c.server, p);
 		 * 
 		 * //TODO publish ClientObject //TODO bind other client objects to pass
 		 * the moves //TODO first client (or server) starts new game and does
@@ -104,13 +75,13 @@ public class Client extends UnicastRemoteObject implements IClient,
 	 *            player to register
 	 * @author manuel
 	 */
-	public static void registerPlayer(String serverIP, Player p, int numPlayer) {
+	public static void registerPlayer(String serverIP, RemotePlayer p) {
 		try {
 			boolean messageRegister;
 			IServer IS = (IServer) Naming.lookup("rmi://" + serverIP
 					+ ":1099/RegistrationService");
 			System.out.print("Registration proceed...");
-			messageRegister = IS.register(p, numPlayer);
+			messageRegister = IS.register(p);
 			System.out.println(messageRegister);
 
 			if (messageRegister == true) {
@@ -136,7 +107,7 @@ public class Client extends UnicastRemoteObject implements IClient,
 	 * @param serverIP
 	 * @param p
 	 */
-	public static void unregisterPlayer(String serverIP, Player p) {
+	public static void unregisterPlayer(String serverIP, RemotePlayer p) {
 
 		try {
 			boolean messageRegister;

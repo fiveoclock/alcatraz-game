@@ -4,7 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
-import at.falb.games.alcatraz.api.Player;
+import at.falb.games.alcatraz.api.*;
 
 
 public interface IClient extends Remote {

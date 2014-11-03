@@ -2,7 +2,6 @@ package alcatraz;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import at.falb.games.alcatraz.api.Player;
 
 public interface IServer extends Remote {
 
