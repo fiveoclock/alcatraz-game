@@ -7,6 +7,12 @@ public class RemotePlayer extends Player {
 	private int desiredNumPlayers;
 	private String rmiUri;
 	
+	/**
+	 * 
+	 * @param player
+	 * @param numPlayers
+	 * @author alex
+	 */
 	public RemotePlayer(Player player, int numPlayers) {
 		super(player);
 		setDesiredNumPlayers(numPlayers);

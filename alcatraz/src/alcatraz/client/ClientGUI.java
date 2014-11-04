@@ -29,6 +29,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.JScrollBar;
 
+import alcatraz.RemotePlayer;
+
 public class ClientGUI extends JFrame {
 
 	private JPanel contentPane;
@@ -97,7 +99,8 @@ public class ClientGUI extends JFrame {
 			
 			
 			if(gatherFieldInformation(c) == true){
-				//c.registerPlayer(c.getServerAdr(), p, c.getNumPlayer());
+				RemotePlayer p = new RemotePlayer(0, c.getNumPlayer());
+				Client.registerPlayer(c.getServerAdr(), p);
 			}
 			
 					
