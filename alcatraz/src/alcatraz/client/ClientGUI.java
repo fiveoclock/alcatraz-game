@@ -1,38 +1,26 @@
 package alcatraz.client;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.ButtonGroup;
-import javax.swing.ButtonModel;
-import javax.swing.JButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.JLabel;
-import javax.swing.JPopupMenu;
-
-import java.awt.Component;
+import java.awt.Label;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JRadioButtonMenuItem;
-
-import java.awt.Choice;
-import java.awt.Label;
-
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JScrollBar;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 
 import alcatraz.RemotePlayer;
 
 public class ClientGUI extends JFrame {
 
+	private static final long serialVersionUID = 1L;
+	
 	private JPanel contentPane;
 	private JTextField tfName;
 	private JTextField tfServerAdr;
@@ -44,7 +32,7 @@ public class ClientGUI extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public ClientGUI(final Client c) {
+	public ClientGUI(final RemotePlayer p) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 530, 230);
 		contentPane = new JPanel();
@@ -97,10 +85,8 @@ public class ClientGUI extends JFrame {
 		public void mouseClicked(MouseEvent e) {
 			
 			
-			
-			if(gatherFieldInformation(c) == true){
-				RemotePlayer p = new RemotePlayer(0, c.getNumPlayer());
-				Client.registerPlayer(c.getServerAdr(), p);
+			if(gatherFieldInformation(p) == true){
+				Client.registerPlayer(p);
 			}
 			
 					
@@ -115,13 +101,15 @@ public class ClientGUI extends JFrame {
 	contentPane.add(scrollPane);
 	
 	outputArea = new JTextArea();
+	outputArea.setEnabled(false);
+	outputArea.setEditable(false);
 	scrollPane.setViewportView(outputArea);
 	}
 	
 	// ================================================================================
 	// ================================================================================
 	// METHODS
-	private boolean gatherFieldInformation(Client c) {
+	private boolean gatherFieldInformation(RemotePlayer p) {
 		
 		boolean allClear = true;
 		boolean nameClear = true;
@@ -130,8 +118,8 @@ public class ClientGUI extends JFrame {
 		
 		// Player name
 		if(!(tfName.getText().equals(""))) {
-			c.setName(tfName.getText());
-			outputArea.append("Name: " + c.getName() + "\n");
+			p.setName(tfName.getText());
+			outputArea.append("Name: " + p.getName() + "\n");
 		}
 		else{
 			outputArea.append("ERROR: Please enter a name!\n");
@@ -140,8 +128,8 @@ public class ClientGUI extends JFrame {
 		
 		// Server address
 		if(!(tfServerAdr.getText().equals(""))) {
-			c.setServerAdr(tfServerAdr.getText());
-			outputArea.append("Server: " + c.getServerAdr() + "\n");
+			p.setServerAdr(tfServerAdr.getText());
+			outputArea.append("Server: " + p.getServerAdr() + "\n");
 			
 		}
 		else{
@@ -151,16 +139,16 @@ public class ClientGUI extends JFrame {
 		
 		// Number of Players
 		if(rb2players.isSelected()) {
-			c.setNumPlayer(2);
-			outputArea.append("A game for " + c.getNumPlayer() + " players\n");
+			p.setDesiredNumPlayers(2);
+			outputArea.append("A game for " + p.getDesiredNumPlayers() + " players\n");
 		}
 		else if(rb3players.isSelected()) {
-			c.setNumPlayer(3);
-			outputArea.append("A game for " + c.getNumPlayer() + " players\n");
+			p.setDesiredNumPlayers(3);
+			outputArea.append("A game for " + p.getDesiredNumPlayers() + " players\n");
 		}
 		else if(rb4players.isSelected()) {
-			c.setNumPlayer(4);
-			outputArea.append("A game for " + c.getNumPlayer() + " players\n");
+			p.setDesiredNumPlayers(4);
+			outputArea.append("A game for " + p.getDesiredNumPlayers() + " players\n");
 		}
 		else{
 			outputArea.append("ERROR: Please select the number of players!\n");
@@ -175,26 +163,4 @@ public class ClientGUI extends JFrame {
 		return allClear;
 	}
 
-	//TODO: delete later 
-	/*
-	private static void addPopup(Component component, final JPopupMenu popup) {
-		component.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent e) {
-				if (e.isPopupTrigger()) {
-					showMenu(e);
-				}
-			}
-
-			public void mouseReleased(MouseEvent e) {
-				if (e.isPopupTrigger()) {
-					showMenu(e);
-				}
-			}
-
-			private void showMenu(MouseEvent e) {
-				popup.show(e.getComponent(), e.getX(), e.getY());
-			}
-		});
-	}
-	*/
 }

@@ -253,8 +253,8 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 			System.out.println("ServerIP: " + ipAddress + "\n");
 
 			IServer IS = new Server();
-			//Naming.rebind("rmi://" + ipAddress + ":1099/RegistrationService", IS);
-			Naming.rebind("rmi://127.0.0.1" + ":1099/RegistrationService", IS);
+			Naming.rebind("rmi://" + ipAddress + ":1099/RegistrationService", IS);
+			//Naming.rebind("rmi://127.0.0.1" + ":1099/RegistrationService", IS);
 			
 			System.out.println("RegistrationServer is up and running.");
 		} catch (Exception e) {
@@ -271,9 +271,8 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	 * Registers a player on the Server.
 	 * 
 	 * @see alcatraz.IServer#register(alcatraz.Player)
-	 * @author max
 	 */
-	//@Override
+	@Override
 	public boolean register(RemotePlayer p) throws IServerException, RemoteException {
 		if (playerList.toString().contains(p.getName())) {
 			System.out.println("A player by the name of " + p.getName() + " is already registered.");
@@ -294,7 +293,8 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 			System.out.println("Enough players registered to start a game - starting now.");
 			//startNow(p.getDesiredNumPlayers());
 		}
-		// synchronize list
+		
+		// synchronize list with the other servers
 		sendObject(playerList);
 		return true;
 	}
@@ -305,7 +305,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	 * @see alcatraz.IServer#unregister(alcatraz.Player)
 	 * @author max
 	 */
-	//@Override
+	@Override
 	public boolean unregister(RemotePlayer p) throws IServerException, RemoteException {
 		// when the player is not in the list you cannot unregister him
 		if (playerList.remove(p) == true) {

@@ -22,10 +22,12 @@ public class Client extends UnicastRemoteObject implements IClient,
 
 	private static final long serialVersionUID = 1L;
 
+	//TODO remove the next 3 variables out of the system - these things are all accessible from
+	// the RemotePlayer object
 	private String name;
 	private String serverAdr;
 	private int numPlayer;
-	
+
 	private int myId;
 
 	private Alcatraz a = new Alcatraz();
@@ -35,10 +37,9 @@ public class Client extends UnicastRemoteObject implements IClient,
 	// MAIN
 
 	public static void main(String[] args) throws RemoteException {
-		
-		// a new client creates the gui in his constructor
+
+		// A new Client opens the GUI in its constructor
 		Client c = new Client();
-		
 
 		/*
 		 * 
@@ -55,7 +56,8 @@ public class Client extends UnicastRemoteObject implements IClient,
 
 	public Client() throws RemoteException {
 
-		ClientGUI frame = new ClientGUI(this);
+		RemotePlayer p = new RemotePlayer();
+		ClientGUI frame = new ClientGUI(p);
 		frame.setVisible(true);
 
 	}
@@ -75,10 +77,10 @@ public class Client extends UnicastRemoteObject implements IClient,
 	 *            player to register
 	 * @author manuel
 	 */
-	public static void registerPlayer(String serverIP, RemotePlayer p) {
+	public static void registerPlayer(RemotePlayer p) {
 		try {
 			boolean messageRegister;
-			IServer IS = (IServer) Naming.lookup("rmi://" + serverIP
+			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr()
 					+ ":1099/RegistrationService");
 			System.out.print("Registration proceed...");
 			messageRegister = IS.register(p);
@@ -101,17 +103,17 @@ public class Client extends UnicastRemoteObject implements IClient,
 	}
 
 	/**
-	 * Unregister the passed Player
+	 * Unregister the passed Player.
 	 *
 	 * @author max
 	 * @param serverIP
 	 * @param p
 	 */
-	public static void unregisterPlayer(String serverIP, RemotePlayer p) {
+	public static void unregisterPlayer(RemotePlayer p) {
 
 		try {
 			boolean messageRegister;
-			IServer IS = (IServer) Naming.lookup("rmi://" + serverIP
+			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr()
 					+ ":1099/RegistrationService");
 			System.out.print("Registration proceed...");
 			messageRegister = IS.unregister(p);
@@ -132,7 +134,6 @@ public class Client extends UnicastRemoteObject implements IClient,
 			e.printStackTrace();
 		}
 	}
-
 
 	// ================================================================================
 	// ================================================================================
@@ -185,6 +186,10 @@ public class Client extends UnicastRemoteObject implements IClient,
 		System.out.println("Player " + player.getId() + " wins.");
 	}
 
+	// ================================================================================
+	// ================================================================================
+	// GETTERS AND SETTERS
+	
 	public int getNumPlayer() {
 		return numPlayer;
 	}
@@ -192,7 +197,7 @@ public class Client extends UnicastRemoteObject implements IClient,
 	public void setNumPlayer(int numPlayer) {
 		this.numPlayer = numPlayer;
 	}
-	
+
 	public String getName() {
 		return name;
 	}

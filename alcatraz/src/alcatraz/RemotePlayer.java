@@ -1,42 +1,74 @@
 package alcatraz;
 
-import at.falb.games.alcatraz.api.Player;
+import java.io.Serializable;
 
-public class RemotePlayer extends Player {
+/**
+ * This class represents a player who wants to play the alcatraz game.
+ * 
+ * @author alex
+ * @author max
+ */
+public class RemotePlayer implements Serializable{
+
 	private static final long serialVersionUID = -1887483427951420040L;
+
+	private String name;
+	private String serverAdr;
 	private int desiredNumPlayers;
+	
+	// what do we need this for? [max]
 	private String rmiUri;
 	
-	/**
-	 * 
-	 * @param player
-	 * @param numPlayers
-	 * @author alex
-	 */
-	public RemotePlayer(Player player, int numPlayers) {
-		super(player);
-		setDesiredNumPlayers(numPlayers);
-	}
-	public RemotePlayer(int id, int numPlayers) {
-		super(id);
-		setDesiredNumPlayers(numPlayers);
-	}
+
+	// ================================================================================
+	// ================================================================================
+	// CONSTRUCTOR
 	
+	public RemotePlayer() {
+		
+	}
+
+	// ================================================================================
+	// ================================================================================
+	// METHODS
 	public boolean setDesiredNumPlayers(int i) {
-		if (i>=2 && i<=4) {
+		if (i >= 2 && i <= 4) {
 			desiredNumPlayers = i;
 			return true;
 		}
 		return false;
 	}
+
 	public int getDesiredNumPlayers() {
-		return 	desiredNumPlayers;
+		return desiredNumPlayers;
 	}
 
 	public void setRmiUri(String uri) {
 		rmiUri = uri;
 	}
+
 	public String getRmiUri() {
 		return rmiUri;
+	}
+
+	@Override
+	public String toString() {
+		return this.getName();
+	}
+
+	public String getServerAdr() {
+		return serverAdr;
+	}
+
+	public void setServerAdr(String serverAdr) {
+		this.serverAdr = serverAdr;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }
