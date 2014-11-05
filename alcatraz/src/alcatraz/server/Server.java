@@ -254,7 +254,6 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 
 			IServer IS = new Server();
 			Naming.rebind("rmi://" + ipAddress + ":1099/RegistrationService", IS);
-			//Naming.rebind("rmi://127.0.0.1" + ":1099/RegistrationService", IS);
 			
 			System.out.println("RegistrationServer is up and running.");
 		} catch (Exception e) {
@@ -307,18 +306,15 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	 */
 	@Override
 	public boolean unregister(RemotePlayer p) throws IServerException, RemoteException {
-		// when the player is not in the list you cannot unregister him
-		if (playerList.remove(p) == true) {
-			// send updated playerlist to backup servers
-			sendObject(playerList);
-			
-			System.out.println(p.getName() + " has un-registered");
-			return true;
+		
+		for (RemotePlayer s : playerList) {
+			if (s.getName().equals(p.getName())) {
+				playerList.remove(s);
+				sendObject(playerList);
+				return true;
+			}
 		}
-		else {
-			System.out.println("There is no player called \"" + p.getName() );
-			return false;
-		}
+		return false;
 	}
 
 	@Override

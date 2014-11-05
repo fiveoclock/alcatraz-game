@@ -15,8 +15,6 @@ public class RemotePlayer implements Serializable{
 	private String name;
 	private String serverAdr;
 	private int desiredNumPlayers;
-	
-	// what do we need this for? [max]
 	private String rmiUri;
 	
 

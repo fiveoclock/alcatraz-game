@@ -5,6 +5,8 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+import javax.annotation.processing.Messager;
+
 import alcatraz.IServerException;
 import alcatraz.IServer;
 import alcatraz.IClientException;
@@ -22,12 +24,11 @@ public class Client extends UnicastRemoteObject implements IClient,
 
 	private static final long serialVersionUID = 1L;
 
-	//TODO remove the next 3 variables out of the system - these things are all accessible from
-	// the RemotePlayer object
+	// TODO remove the next 4 variables out of the system - these things are all
+	// accessible from the RemotePlayer object
 	private String name;
 	private String serverAdr;
 	private int numPlayer;
-
 	private int myId;
 
 	private Alcatraz a = new Alcatraz();
@@ -69,28 +70,22 @@ public class Client extends UnicastRemoteObject implements IClient,
 	// ================================================================================
 	// server lookup and register player at server
 	/**
-	 * Does the server lookup and registers the passed Player.
 	 * 
-	 * @param serverIP
-	 *            ip of the server
+	 *
+	 * @author max
 	 * @param p
-	 *            player to register
-	 * @author manuel
+	 * @return Returns <b>true</b> if the RemotePlayer was successfully registered. <br>
+	 * Returns <b>false</b> if the registration failed.
 	 */
-	public static void registerPlayer(RemotePlayer p) {
+	public static boolean registerPlayer(RemotePlayer p) {
+		
+		boolean registerSuccess = false;
+		
 		try {
-			boolean messageRegister;
 			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr()
 					+ ":1099/RegistrationService");
 			System.out.print("Registration proceed...");
-			messageRegister = IS.register(p);
-			System.out.println(messageRegister);
-
-			if (messageRegister == true) {
-				System.out.println("Registration OK!");
-			} else {
-				System.out.println("Registration False! Program closed!");
-			}
+			registerSuccess = IS.register(p);		
 
 		} catch (IServerException ISe) {
 			System.err.println("Registration throw Exception: "
@@ -100,30 +95,28 @@ public class Client extends UnicastRemoteObject implements IClient,
 			System.err.println("Something did not work, see stack trace.");
 			e.printStackTrace();
 		}
+		
+		return registerSuccess;
 	}
 
 	/**
-	 * Unregister the passed Player.
+	 * 
 	 *
 	 * @author max
-	 * @param serverIP
 	 * @param p
+	 * @return Returns <b>true</b> if the RemotePlayer was successfully unregistered. <br>
+	 * Returns <b>false</b> if no such registered RemotePlayer exists.
 	 */
-	public static void unregisterPlayer(RemotePlayer p) {
+	public static boolean unregisterPlayer(RemotePlayer p) {
 
+		boolean unregistrationSuccess = false;
+		
 		try {
-			boolean messageRegister;
+			
 			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr()
 					+ ":1099/RegistrationService");
 			System.out.print("Registration proceed...");
-			messageRegister = IS.unregister(p);
-			System.out.println(messageRegister);
-
-			if (messageRegister == true) {
-				System.out.println("Unregistration OK!");
-			} else {
-				System.out.println("Unregister failed!");
-			}
+			unregistrationSuccess = IS.unregister(p);
 
 		} catch (IServerException ISe) {
 			System.err.println("Registration throw Exception: "
@@ -133,6 +126,8 @@ public class Client extends UnicastRemoteObject implements IClient,
 			System.err.println("Something did not work, see stack trace.");
 			e.printStackTrace();
 		}
+		
+		return unregistrationSuccess;
 	}
 
 	// ================================================================================
@@ -189,7 +184,7 @@ public class Client extends UnicastRemoteObject implements IClient,
 	// ================================================================================
 	// ================================================================================
 	// GETTERS AND SETTERS
-	
+
 	public int getNumPlayer() {
 		return numPlayer;
 	}
