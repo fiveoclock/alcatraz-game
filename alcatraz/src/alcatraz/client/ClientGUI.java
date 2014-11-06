@@ -107,6 +107,14 @@ public class ClientGUI extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 
 				if (gatherFieldInformation(p) == true) {
+					
+					/* publish the client object - afterwards the remoteplayer with the rmiUri gets
+					 * passed to the server via register - then the server holds the list with
+					 * all the remoteplayers (and the uris) and passes this list to every remoteplayer
+					 */
+					
+					p.setRmiUri(Client.publishObject(p.getIC()));
+					
 					if(Client.registerPlayer(p) == true) {
 						btnRegister.setEnabled(false);
 						btnUnregister.setEnabled(true);

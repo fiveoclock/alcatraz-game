@@ -1,6 +1,7 @@
 package alcatraz.client;
 
 import java.util.*;
+import java.net.InetAddress;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -14,6 +15,7 @@ import alcatraz.IClient;
 //import alcatraz.Player; // use provided Alcatraz player class
 
 import alcatraz.RemotePlayer;
+import alcatraz.server.Server;
 import at.falb.games.alcatraz.api.Alcatraz;
 import at.falb.games.alcatraz.api.MoveListener;
 import at.falb.games.alcatraz.api.Player;
@@ -40,15 +42,8 @@ public class Client extends UnicastRemoteObject implements IClient,
 	public static void main(String[] args) throws RemoteException {
 
 		// A new Client opens the GUI in its constructor
-		Client c = new Client();
+		IClient IC = new Client();
 
-		/*
-		 * 
-		 * //TODO publish ClientObject //TODO bind other client objects to pass
-		 * the moves //TODO first client (or server) starts new game and does
-		 * the first move //TODO first client passes move to other players and
-		 * the next clients turn begins
-		 */
 	}
 
 	// ================================================================================
@@ -57,11 +52,12 @@ public class Client extends UnicastRemoteObject implements IClient,
 
 	public Client() throws RemoteException {
 
-		RemotePlayer p = new RemotePlayer();
+		RemotePlayer p = new RemotePlayer(this);
 		ClientGUI frame = new ClientGUI(p);
 		frame.setVisible(true);
 
 	}
+	
 
 	// ================================================================================
 	// ================================================================================
@@ -84,7 +80,7 @@ public class Client extends UnicastRemoteObject implements IClient,
 		try {
 			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr()
 					+ ":1099/RegistrationService");
-			System.out.print("Registration proceed...");
+			System.out.print("Registration proceed...\n");
 			registerSuccess = IS.register(p);		
 
 		} catch (IServerException ISe) {
@@ -129,6 +125,36 @@ public class Client extends UnicastRemoteObject implements IClient,
 		
 		return unregistrationSuccess;
 	}
+	
+	/**
+	 * publishes the Client-Remote-Objects so the moves of the game can be <br>
+	 * passed to the other Players.
+	 *
+	 * @author max
+	 */
+	public static String publishObject(IClient IC) {
+		try {
+			InetAddress address = InetAddress.getLocalHost();
+			String ipAddress = address.getHostAddress();
+
+			System.out.println("Client is being published");
+			System.out.println("ClientIP: " + ipAddress);
+
+			String rmiUri = new String("rmi://" + ipAddress + ":1099/Client");
+			Naming.rebind(rmiUri, IC);
+			
+			System.out.println("Client Services are up and running.\n");
+			
+			return rmiUri;
+			
+		} catch (Exception e) {
+			System.out.println("Error!");
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
 
 	// ================================================================================
 	// ================================================================================

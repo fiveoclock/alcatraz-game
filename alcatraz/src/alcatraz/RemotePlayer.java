@@ -16,14 +16,15 @@ public class RemotePlayer implements Serializable{
 	private String serverAdr;
 	private int desiredNumPlayers;
 	private String rmiUri;
+	private IClient IC;
 	
 
 	// ================================================================================
 	// ================================================================================
 	// CONSTRUCTOR
 	
-	public RemotePlayer() {
-		
+	public RemotePlayer(IClient IC) {
+		this.setIC(IC); 
 	}
 
 	// ================================================================================
@@ -68,5 +69,13 @@ public class RemotePlayer implements Serializable{
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public IClient getIC() {
+		return IC;
+	}
+
+	public void setIC(IClient creator) {
+		this.IC = creator;
 	}
 }
