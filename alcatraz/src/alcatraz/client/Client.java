@@ -132,7 +132,7 @@ public class Client extends UnicastRemoteObject implements IClient,
 	 *
 	 * @author max
 	 */
-	public static String publishObject(IClient IC) {
+	public static String publishObject(RemotePlayer p) {
 		try {
 			InetAddress address = InetAddress.getLocalHost();
 			String ipAddress = address.getHostAddress();
@@ -140,8 +140,8 @@ public class Client extends UnicastRemoteObject implements IClient,
 			System.out.println("Client is being published");
 			System.out.println("ClientIP: " + ipAddress);
 
-			String rmiUri = new String("rmi://" + ipAddress + ":1099/Client");
-			Naming.rebind(rmiUri, IC);
+			String rmiUri = new String("rmi://" + ipAddress + ":1099/" + p.getName());
+			Naming.rebind(rmiUri, p.getIC());
 			
 			System.out.println("Client Services are up and running.\n");
 			

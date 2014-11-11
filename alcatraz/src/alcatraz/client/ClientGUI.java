@@ -113,7 +113,7 @@ public class ClientGUI extends JFrame {
 					 * all the remoteplayers (and the uris) and passes this list to every remoteplayer
 					 */
 					
-					p.setRmiUri(Client.publishObject(p.getIC()));
+					p.setRmiUri(Client.publishObject(p));
 					
 					if(Client.registerPlayer(p) == true) {
 						btnRegister.setEnabled(false);
