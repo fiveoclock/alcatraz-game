@@ -15,7 +15,6 @@ import alcatraz.IClient;
 //import alcatraz.Player; // use provided Alcatraz player class
 
 import alcatraz.RemotePlayer;
-import alcatraz.server.Server;
 import at.falb.games.alcatraz.api.Alcatraz;
 import at.falb.games.alcatraz.api.MoveListener;
 import at.falb.games.alcatraz.api.Player;
@@ -32,6 +31,7 @@ public class Client extends UnicastRemoteObject implements IClient,
 	private String serverAdr;
 	private int numPlayer;
 	private int myId;
+	private ArrayList<RemotePlayer> playerList = new ArrayList<RemotePlayer>();
 
 	private Alcatraz a = new Alcatraz();
 
@@ -174,12 +174,17 @@ public class Client extends UnicastRemoteObject implements IClient,
 	 * @see alcatraz.IClient#startGame(java.util.ArrayList)
 	 */
 	@Override
-	public boolean startGame(ArrayList<RemotePlayer> playerList)
+	public boolean startGame(ArrayList<RemotePlayer> playerList, RemotePlayer me)
 			throws IClientException, RemoteException {
-		startAndInitGame();
-		// TODO do game stuff
+		//startAndInitGame();
+		this.myId = me.getId();
+		this.playerList = playerList;
+		// setup the game
+		a.init(playerList.size(), this.myId);
+		a.showWindow();
+		a.addMoveListener(this);
+		a.start();
 		
-		System.out.println("kj\n");
 		return true;
 	}
 
@@ -188,20 +193,31 @@ public class Client extends UnicastRemoteObject implements IClient,
 	// Original w�re: doMoveRemote(Player player, Prisoner prisoner, int
 	// rowOrCol, int row, int col)
 	// macht aber nur einen Error; Manuel
-	public void doMoveRemote(String player, int prisoner, int roworCol,
-			int row, int col) throws IClientException, RemoteException {
-
+	public boolean doMoveRemote(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws IClientException, RemoteException {
+		a.doMove(player, prisoner, rowOrCol, row, col);
+		return true;
 	}
 
-	public void moveDone(Player player, Prisoner prisoner, int rowOrCol,
-			int row, int col) {
+	public void moveDone(Player player, Prisoner prisoner, int rowOrCol, int row, int col) {
 		System.out.println("moving " + prisoner + " to "
 				+ (rowOrCol == Alcatraz.ROW ? "row" : "col") + " "
 				+ (rowOrCol == Alcatraz.ROW ? row : col));
-		for (int i = 0; i < getNumPlayer() - 1; i++) {
-			// sendMessage("p:"+prisoner+" > "+rowOrCol+":"+row+":"+col);
-			Move m = new Move(player, prisoner, rowOrCol, row, col);
-			// sendObject(m);
+		
+		for (RemotePlayer p : this.playerList) {
+			if (p.getId() == this.myId) {
+			}
+			else {
+				boolean status = false;
+				while (! status ) {
+					try {
+						p.getIC().doMoveRemote(player, prisoner, rowOrCol, row, col);
+						status = true;
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 	}
 

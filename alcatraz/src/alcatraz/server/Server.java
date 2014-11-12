@@ -328,7 +328,9 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		int count = 0;
 		for (RemotePlayer p : playerList ) {
 			if (numPlayers == p.getDesiredNumPlayers()) {
+				p.setId(count);
 				gameList.add(p);
+				count++;
 			}
 			if (gameList.size() == numPlayers) {
 				break;
@@ -339,7 +341,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		for (RemotePlayer p : gameList ) {
 			System.out.print("Invoking start on \"" + p.getName() +"\" ... ");
 			// TODO: uncomment later
-			if (p.getIC().startGame(gameList)) {
+			if (p.getIC().startGame(gameList, p)) {
 				System.out.print("success\n");
 				playerList.remove(p);
 			}

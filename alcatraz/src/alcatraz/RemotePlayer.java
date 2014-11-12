@@ -14,6 +14,7 @@ public class RemotePlayer implements Serializable{
 
 	private String name;
 	private String serverAdr;
+	private int id;
 	private int desiredNumPlayers;
 	private String rmiUri;
 	private IClient IC;
@@ -48,6 +49,14 @@ public class RemotePlayer implements Serializable{
 
 	public String getRmiUri() {
 		return rmiUri;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	@Override

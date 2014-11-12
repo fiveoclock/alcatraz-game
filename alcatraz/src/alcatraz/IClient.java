@@ -18,7 +18,7 @@ public interface IClient extends Remote {
 	 * @throws RemoteException
 	 * @author max
 	 */
-	public boolean startGame(ArrayList<RemotePlayer> playerList) throws IClientException, RemoteException;
+	public boolean startGame(ArrayList<RemotePlayer> playerList, RemotePlayer player) throws IClientException, RemoteException;
 	
 	/**
 	 * This function is to propagate a move to the other players.
@@ -30,7 +30,7 @@ public interface IClient extends Remote {
 	 * @throws IClientException
 	 * @throws RemoteException
 	 */
-	public void doMoveRemote(String player, int prisoner, int roworCol, int row, int col) throws IClientException, RemoteException;
+	public boolean doMoveRemote(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws IClientException, RemoteException;
 
 
 }
