@@ -8,12 +8,14 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
+import alcatraz.IClientException;
 import alcatraz.IServerException;
 import alcatraz.IServer;
 import alcatraz.RemotePlayer;
 
 
 import spread.*;
+
 import java.io.*;
 
 public class Server extends UnicastRemoteObject implements IServer, AdvancedMessageListener {
@@ -268,11 +270,12 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 
 	/**
 	 * Registers a player on the Server.
+	 * @throws IClientException 
 	 * 
 	 * @see alcatraz.IServer#register(alcatraz.Player)
 	 */
 	@Override
-	public boolean register(RemotePlayer p) throws IServerException, RemoteException {
+	public boolean register(RemotePlayer p) throws IServerException, RemoteException, IClientException {
 		if (playerList.toString().contains(p.getName())) {
 			System.out.println("A player by the name of " + p.getName() + " is already registered.");
 			return false;
@@ -290,7 +293,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		// if there are enough players start a game now
 		if (count == p.getDesiredNumPlayers()) {
 			System.out.println("Enough players registered to start a game - starting now.");
-			//startNow(p.getDesiredNumPlayers());
+			startNow(p.getDesiredNumPlayers());
 		}
 		
 		// synchronize list with the other servers
@@ -318,7 +321,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	}
 
 	@Override
-	public boolean startNow(int numPlayers) throws RemoteException {
+	public boolean startNow(int numPlayers) throws RemoteException, IClientException {
 		ArrayList<RemotePlayer> gameList = new ArrayList<RemotePlayer>();
 		
 		// add Players to a gameList
@@ -331,14 +334,13 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 				break;
 			}
 		}
-		// invoke startNow on Client RMIs
+		// invoke startGame on Client RMIs
 		// remove clients from playerList
 		for (RemotePlayer p : gameList ) {
-			System.out.print("Invoking start on \"" + p.getName() +" ... ");
+			System.out.print("Invoking start on \"" + p.getName() +"\" ... ");
 			// TODO: uncomment later
-			//if (p.startNow(gameList)) {
-			if (true) {  // just for debugging
-				System.out.print("success");
+			if (p.getIC().startGame(gameList)) {
+				System.out.print("success\n");
 				playerList.remove(p);
 			}
 			else {

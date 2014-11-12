@@ -159,26 +159,28 @@ public class Client extends UnicastRemoteObject implements IClient,
 	// ================================================================================
 	// ================================================================================
 	// GAME STUFF
-
-	public void startGame() {
+    
+	public void startAndInitGame() {
 		a.init(2, this.myId); // a2.init(2, 1); // a1.init(3, 0);
-		// t1.setOther(0, a2);
+		//t1.setOther(0, a2);
 		// t1.setOther(1, a3);
 		a.showWindow();
 		a.addMoveListener(this);
 		a.start();
 	}
+	
 
 	/**
 	 * @see alcatraz.IClient#startGame(java.util.ArrayList)
 	 */
 	@Override
-	public void startGame(ArrayList<Player> playerList)
+	public boolean startGame(ArrayList<RemotePlayer> playerList)
 			throws IClientException, RemoteException {
-		// TODO bind the other clients from the list here
-		// TODO start alcatraz here
+		startAndInitGame();
 		// TODO do game stuff
-		System.out.println("kj");
+		
+		System.out.println("kj\n");
+		return true;
 	}
 
 	// ================================================================================

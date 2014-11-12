@@ -18,7 +18,7 @@ public interface IClient extends Remote {
 	 * @throws RemoteException
 	 * @author max
 	 */
-	public void startGame(ArrayList<Player> playerList) throws IClientException, RemoteException;
+	public boolean startGame(ArrayList<RemotePlayer> playerList) throws IClientException, RemoteException;
 	
 	/**
 	 * This function is to propagate a move to the other players.

@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 
 public interface IServer extends Remote {
 
-  public boolean startNow(int numPlayers) throws RemoteException;
+  public boolean startNow(int numPlayers) throws RemoteException, IClientException; 
 
   /**
    * 
@@ -14,8 +14,9 @@ public interface IServer extends Remote {
    * Returns <b>false</b> if the registration failed.
    * @throws IServerException
    * @throws RemoteException
+   * @throws IClientException 
    */
-  public boolean register(RemotePlayer p) throws IServerException, RemoteException;
+  public boolean register(RemotePlayer p) throws IServerException, RemoteException, IClientException;
   
   /**
    * 
