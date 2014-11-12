@@ -32,7 +32,6 @@ public class Client extends UnicastRemoteObject implements IClient,
 	private int numPlayer;
 	private int myId;
 	private ArrayList<RemotePlayer> playerList = new ArrayList<RemotePlayer>();
-
 	private Alcatraz a = new Alcatraz();
 
 	// ================================================================================
@@ -66,8 +65,6 @@ public class Client extends UnicastRemoteObject implements IClient,
 	// ================================================================================
 	// server lookup and register player at server
 	/**
-	 * 
-	 *
 	 * @author max
 	 * @param p
 	 * @return Returns <b>true</b> if the RemotePlayer was successfully registered. <br>
@@ -76,16 +73,13 @@ public class Client extends UnicastRemoteObject implements IClient,
 	public static boolean registerPlayer(RemotePlayer p) {
 		
 		boolean registerSuccess = false;
-		
 		try {
-			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr()
-					+ ":1099/RegistrationService");
+			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr() + ":1099/RegistrationService");
 			System.out.print("Registration proceed...\n");
 			registerSuccess = IS.register(p);		
 
 		} catch (IServerException ISe) {
-			System.err.println("Registration throw Exception: "
-					+ ISe.getMessage());
+			System.err.println("Registration threw Exception: " + ISe.getMessage());
 			ISe.printStackTrace();
 		} catch (Exception e) {
 			System.err.println("Something did not work, see stack trace.");
@@ -96,8 +90,6 @@ public class Client extends UnicastRemoteObject implements IClient,
 	}
 
 	/**
-	 * 
-	 *
 	 * @author max
 	 * @param p
 	 * @return Returns <b>true</b> if the RemotePlayer was successfully unregistered. <br>
@@ -174,8 +166,7 @@ public class Client extends UnicastRemoteObject implements IClient,
 	 * @see alcatraz.IClient#startGame(java.util.ArrayList)
 	 */
 	@Override
-	public boolean startGame(ArrayList<RemotePlayer> playerList, RemotePlayer me)
-			throws IClientException, RemoteException {
+	public boolean startGame(ArrayList<RemotePlayer> playerList, RemotePlayer me) throws IClientException, RemoteException {
 		//startAndInitGame();
 		this.myId = me.getId();
 		this.playerList = playerList;
@@ -213,8 +204,11 @@ public class Client extends UnicastRemoteObject implements IClient,
 						p.getIC().doMoveRemote(player, prisoner, rowOrCol, row, col);
 						status = true;
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						System.out.println("Sending move to " + player.getName() + " failed, retrying...");
+						try{
+							Thread.sleep(1000);
+						}
+						catch(InterruptedException ie){ }
 					}
 				}
 			}
