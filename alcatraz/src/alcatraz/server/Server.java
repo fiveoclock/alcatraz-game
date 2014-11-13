@@ -63,7 +63,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	
 	public boolean joinGroup() {
 		try {
-			// connecting to spread
+			// connecting to spread daemon
 			System.out.print("Connecting to spread deamon ("+this.spreadHost+") ... ");
 			this.spread.connect(InetAddress.getByName(this.spreadHost), 0, this.id+"", false, true);
 			System.out.print("connected ... ");
@@ -71,11 +71,10 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 			// adding this class as listener
 			this.spread.add(this);
 			
-			// joining spread group
+			// joining the spread group
 			SpreadGroup group = new SpreadGroup();
 			System.out.println("joining group ");
 			group.join(this.spread, this.spreadGroup);
-			
 			
 			// remembering myself for later use
 			spreadSelf = this.spread.getPrivateGroup();
@@ -90,11 +89,14 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		}
 	}
 
-	// called when group membership changed
+	// Listener function
+	// This function is called when spread has notified us of a membership change
 	public void membershipMessageReceived(SpreadMessage msg) {
+		// extract the Membership information from the Spread message
 		MembershipInfo info = msg.getMembershipInfo();
-		int num = info.getMembers().length;
+		int num = info.getMembers().length;   // get the new number of members
 		
+		// check if the method was called because a new member joined
 		if (info.isCausedByJoin())  {
 			System.out.println("Spread: " + info.getJoined() + " joined group / " + num + " connected / current members:");
 			printMemberList(info);
@@ -110,6 +112,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 				}
 			}
 		}
+		// check if the method was called because a member was disconnected
 		if (info.isCausedByDisconnect())  {
 			System.out.println("Spread: " + info.getDisconnected() + " got disconnected from group / " + num + " connected / current members:");
 			printMemberList(info);
@@ -121,13 +124,14 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 			}
 			// if there are more than one
 			else if (num >= 2) {
-				// start server if I have the lowest id
+				// start server if I'm the member with the lowest id
 				if (server.id <= getLowestId(info)) {
 					System.out.println("Becomming master server because of lowest ID");
 					server.publishObject();
 				}
 			}
 		}
+		// check if the method was called because a member has left the group
 		if (info.isCausedByLeave())  {
 			System.out.println("Spread: " + info.getLeft() + " left group / " + num + " connected / current members:");
 			printMemberList(info);
@@ -148,6 +152,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		}
 	}
 	
+	// this method prints the list of members for informational reasons
 	private void printMemberList(MembershipInfo info) {
 		for (SpreadGroup g : info.getMembers() ) {
 			System.out.print("  member: "+ g.toString());
@@ -158,12 +163,14 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		}
 	}
 	
+	// determine the lowest if of all current spread members
 	private int getLowestId(MembershipInfo info) {
-		int lowestId = Integer.MAX_VALUE; 
+		int lowestId = Integer.MAX_VALUE;  // set lowestId to highest possible Integer value
 		for (SpreadGroup g : info.getMembers() ) {
+			// parse the id of all members - didn't find a better way to get the id
 			int memberID = Integer.valueOf(g.toString().split("#")[1]);
-			
 			//System.out.print("\n" + lowestId + " <= " + memberID);
+
 			if (memberID <= lowestId) {
 				//System.out.print(" -- true");
 				lowestId = memberID;
@@ -175,29 +182,20 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	// ================================================================================
 	// ================================================================================
 	// Spread message handling
-	
+
+	// Listener method
+	// This method is called when spread has passed us a regular message
 	public void regularMessageReceived(SpreadMessage message) {
-		// check if message was sent by myself
+		// ignore messages that were sent by myself
 		if ( ! message.getSender().equals(this.spreadSelf) ) {
 			System.out.println("Received updated PlayerList from" + message.getSender());
+			// save the updated playerList
 			playerList = (ArrayList<RemotePlayer>) deserialize(message.getData());
 		}
 	}
 
-	public void sendMessage(String msg) {
-		SpreadMessage message = new SpreadMessage();
-		message.setReliable();
-		message.addGroup(this.spreadGroup);
-		message.setData(msg.getBytes());
-		try {
-			server.spread.multicast(message);
-		}
-		catch (Exception e) {
-			System.out.println("Trouble!");
-			e.printStackTrace();
-		}
-	}
-
+	// method for sending the playerList to other spread members;
+	// takes an generic object that gets serialized and then transfered
 	public void sendObject(Object obj) {
 		SpreadMessage message = new SpreadMessage();
 		message.setReliable();
@@ -213,6 +211,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		}
 	}
 	
+	// method for serializing an object and returning it as a byte array
 	public static byte[] serialize(Object obj) {
 		try {
 			ByteArrayOutputStream b = new ByteArrayOutputStream();
@@ -227,6 +226,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		return null;
     }
 
+	// method for trying to deserializing a byte array into an generic object 
 	public static Object deserialize(byte[] bytes) {
 		try {
 			ByteArrayInputStream b = new ByteArrayInputStream(bytes);
@@ -276,21 +276,23 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	 */
 	@Override
 	public boolean register(RemotePlayer p) throws IServerException, RemoteException, IClientException {
+		// check if the desired player name is free
 		if (playerList.toString().contains(p.getName())) {
 			System.out.println("A player by the name of " + p.getName() + " is already registered.");
 			return false;
 		}
+		// if the player name is free add the player to the list
 		playerList.add(p);
 		System.out.println("\"" + p.getName() + "\" has registered.");
 		
-		// count registered players
+		// count all registered players that want to play with the same number of players
 		int count = 0;
 		for (RemotePlayer s : playerList ) {
 			if (s.getDesiredNumPlayers() == p.getDesiredNumPlayers()) {
 				count++;
 			}
 		}
-		// if there are enough players start a game now
+		// if there are enough players, start a game right away
 		if (count == p.getDesiredNumPlayers()) {
 			System.out.println("Enough players registered to start a game - starting now.");
 			startNow(p.getDesiredNumPlayers());
@@ -321,34 +323,37 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	}
 
 	@Override
+	// method for starting a game and informing the players about the game start
 	public boolean startNow(int numPlayers) throws RemoteException, IClientException {
 		ArrayList<RemotePlayer> gameList = new ArrayList<RemotePlayer>();
 		
-		// add Players to a gameList
+		// add Players to a temporary gameList
 		int count = 0;
 		for (RemotePlayer p : playerList ) {
 			if (numPlayers == p.getDesiredNumPlayers()) {
-				p.setId(count);
+				p.setId(count);  // give each player a unique id
 				gameList.add(p);
 				count++;
 			}
+			// stop adding players when the game is complete
 			if (gameList.size() == numPlayers) {
 				break;
 			}
 		}
-		// invoke startGame on Client RMIs
-		// remove clients from playerList
+
+		// go through all players in the gamelist
 		for (RemotePlayer p : gameList ) {
 			System.out.print("Invoking start on \"" + p.getName() +"\" ... ");
-			// TODO: uncomment later
+			// notify the players about the game start
 			if (p.getIC().startGame(gameList, p)) {
 				System.out.print("success\n");
-				playerList.remove(p);
 			}
 			else {
-				playerList.remove(p);
+				System.out.print("fail\n");
 				return false;
 			}
+			// remove the players from the global playerList
+			playerList.remove(p);
 		}
 		return true;
 	}
