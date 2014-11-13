@@ -350,10 +350,13 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 			}
 			else {
 				System.out.print("fail\n");
+				playerList.remove(p);
+				sendObject(playerList);
 				return false;
 			}
 			// remove the players from the global playerList
 			playerList.remove(p);
+			sendObject(playerList);
 		}
 		return true;
 	}
