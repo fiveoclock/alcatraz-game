@@ -27,22 +27,22 @@ public class Client extends UnicastRemoteObject implements IClient,
 
 	// TODO remove the next 4 variables out of the system - these things are all
 	// accessible from the RemotePlayer object
+	private ClientGUI frame;
 	private String name;
 	private String serverAdr;
 	private int numPlayer;
 	private int myId;
 	private ArrayList<RemotePlayer> playerList = new ArrayList<RemotePlayer>();
 	private Alcatraz a = new Alcatraz();
+	
 
 	// ================================================================================
 	// ================================================================================
 	// MAIN
 
 	public static void main(String[] args) throws RemoteException {
-
 		// A new Client opens the GUI in its constructor
 		IClient IC = new Client();
-
 	}
 
 	// ================================================================================
@@ -50,11 +50,13 @@ public class Client extends UnicastRemoteObject implements IClient,
 	// CONSTRUCTOR
 
 	public Client() throws RemoteException {
-
 		RemotePlayer p = new RemotePlayer(this);
-		ClientGUI frame = new ClientGUI(p);
+		frame = new ClientGUI(p);
+		frame.setTitle("Alcatraz");
+		frame.setBoard(a.getGameBoard());
+		
 		frame.setVisible(true);
-
+		a.addMoveListener(this);
 	}
 	
 
@@ -76,7 +78,7 @@ public class Client extends UnicastRemoteObject implements IClient,
 		try {
 			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr() + ":1099/RegistrationService");
 			System.out.print("Registration proceed...\n");
-			registerSuccess = IS.register(p);		
+			registerSuccess = IS.register(p);
 
 		} catch (IServerException ISe) {
 			System.err.println("Registration threw Exception: " + ISe.getMessage());
@@ -152,29 +154,18 @@ public class Client extends UnicastRemoteObject implements IClient,
 	// ================================================================================
 	// GAME STUFF
     
-	public void startAndInitGame() {
-		a.init(2, this.myId); // a2.init(2, 1); // a1.init(3, 0);
-		//t1.setOther(0, a2);
-		// t1.setOther(1, a3);
-		a.showWindow();
-		a.addMoveListener(this);
-		a.start();
-	}
-	
-
 	/**
 	 * @see alcatraz.IClient#startGame(java.util.ArrayList)
 	 */
 	@Override
 	public boolean startGame(ArrayList<RemotePlayer> playerList, RemotePlayer me) throws IClientException, RemoteException {
-		//startAndInitGame();
 		this.myId = me.getId();
 		this.playerList = playerList;
+		
 		// setup the game
 		a.init(playerList.size(), this.myId);
-		a.showWindow();
-		a.addMoveListener(this);
 		a.start();
+		//a.showWindow();
 		
 		return true;
 	}
