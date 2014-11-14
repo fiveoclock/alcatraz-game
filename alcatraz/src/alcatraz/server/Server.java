@@ -279,7 +279,9 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		}
 		// if the player name is free add the player to the list
 		playerList.add(p);
-		System.out.println("\"" + p.getName() + "\" has registered.");
+		System.out.println("\"" + p.getName() + "\" has registered. " + 
+				"GameSize: " + p.getDesiredNumPlayers() + 
+				"RMI URI: "+ p.getRmiUri() );
 		
 		// count all registered players that want to play with the same number of players
 		int count = 0;

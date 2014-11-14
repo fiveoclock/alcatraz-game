@@ -111,7 +111,7 @@ public class ClientGUI extends JFrame {
 					 */
 					
 					p.setRmiUri(Client.publishObject(p));
-					
+
 					if(Client.registerPlayer(p) == true) {
 						btnRegister.setEnabled(false);
 						btnUnregister.setEnabled(true);
@@ -213,7 +213,7 @@ public class ClientGUI extends JFrame {
 	}
 
 	// place the game board on the right side of the window
-	public void message(String s) {
+	public void showMessage(String s) {
 		outputArea.append(s);
 	}
 }

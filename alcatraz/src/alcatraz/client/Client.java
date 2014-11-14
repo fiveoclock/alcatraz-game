@@ -1,7 +1,10 @@
 package alcatraz.client;
 
 import java.util.*;
+import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -20,8 +23,7 @@ import at.falb.games.alcatraz.api.MoveListener;
 import at.falb.games.alcatraz.api.Player;
 import at.falb.games.alcatraz.api.Prisoner;
 
-public class Client extends UnicastRemoteObject implements IClient,
-		MoveListener {
+public class Client extends UnicastRemoteObject implements IClient, MoveListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -29,7 +31,7 @@ public class Client extends UnicastRemoteObject implements IClient,
 	private Alcatraz a;
 	private int myId;
 	private ArrayList<RemotePlayer> playerList = new ArrayList<RemotePlayer>();
-	
+
 
 	// ================================================================================
 	// ================================================================================
@@ -59,7 +61,7 @@ public class Client extends UnicastRemoteObject implements IClient,
 		frame.setBoard(a.getGameBoard());
 		frame.setVisible(true);
 	}
-	
+
 
 	// ================================================================================
 	// ================================================================================
@@ -74,11 +76,10 @@ public class Client extends UnicastRemoteObject implements IClient,
 	 * Returns <b>false</b> if the registration failed.
 	 */
 	public static boolean registerPlayer(RemotePlayer p) {
-		
 		boolean registerSuccess = false;
 		try {
 			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr() + ":1099/RegistrationService");
-			System.out.print("Registration proceed...\n");
+			System.out.print("Registration proceed... (IP: "+p.getServerAdr() + "\n");
 			registerSuccess = IS.register(p);
 
 		} catch (IServerException ISe) {
@@ -88,7 +89,7 @@ public class Client extends UnicastRemoteObject implements IClient,
 			System.err.println("Something did not work, see stack trace.");
 			e.printStackTrace();
 		}
-		
+
 		return registerSuccess;
 	}
 
@@ -99,18 +100,15 @@ public class Client extends UnicastRemoteObject implements IClient,
 	 * Returns <b>false</b> if no such registered RemotePlayer exists.
 	 */
 	public static boolean unregisterPlayer(RemotePlayer p) {
-
 		boolean unregistrationSuccess = false;
-		
+
 		try {
-			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr()
-					+ ":1099/RegistrationService");
+			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr() + ":1099/RegistrationService");
 			System.out.print("Registration proceed...");
 			unregistrationSuccess = IS.unregister(p);
 
 		} catch (IServerException ISe) {
-			System.err.println("Registration throw Exception: "
-					+ ISe.getMessage());
+			System.err.println("Registration throw Exception: " + ISe.getMessage());
 			ISe.printStackTrace();
 		} catch (Exception e) {
 			System.err.println("Something did not work, see stack trace.");
@@ -122,23 +120,29 @@ public class Client extends UnicastRemoteObject implements IClient,
 	
 	/**
 	 * publishes the Client-Remote-Objects so the moves of the game can be <br>
-	 * passed to the other Players.
+	 * passed between the Players.
 	 *
 	 * @author max
 	 */
 	public static String publishObject(RemotePlayer p) {
 		try {
-			InetAddress address = InetAddress.getLocalHost();
-			String ipAddress = address.getHostAddress();
-
 			System.out.println("Client is being published");
-			System.out.println("ClientIP: " + ipAddress);
+			
+			// determine the local IP address
+			String ip = getLocalIp();
+			if (ip == null ) {
+				System.out.println("Couldn't find out my IP - are you connected to a network?");
+				return null;
+			}
 
-			String rmiUri = new String("rmi://" + ipAddress + ":1099/" + p.getName());
+			// publish the interface on all IPs 
+			String rmiUri = "rmi://" + "0.0.0.0" + ":1099/" + p.getName();
+			//Naming.rebind(rmiUri, p.getIC());
+			
+			// let the others know the RMI with the real IP
+			rmiUri = "rmi://" + ip + ":1099/" + p.getName();
 			Naming.rebind(rmiUri, p.getIC());
-			
-			System.out.println("Client Services are up and running.\n");
-			
+			System.out.println("Client Services started - (" + rmiUri +")");
 			return rmiUri;
 			
 		} catch (Exception e) {
@@ -162,6 +166,9 @@ public class Client extends UnicastRemoteObject implements IClient,
 		this.myId = me.getId();
 		this.playerList = playerList;
 		
+		// disable unregister button
+		frame.setUnregisterButton(false);
+		
 		// setup the game
 		a.init(playerList.size(), this.myId);
 		a.start();
@@ -171,9 +178,6 @@ public class Client extends UnicastRemoteObject implements IClient,
 
 	// ================================================================================
 	@Override
-	// Original w�re: doMoveRemote(Player player, Prisoner prisoner, int
-	// rowOrCol, int row, int col)
-	// macht aber nur einen Error; Manuel
 	public boolean doMoveRemote(Player player, Prisoner prisoner, int rowOrCol, int row, int col) throws IClientException, RemoteException {
 		a.doMove(player, prisoner, rowOrCol, row, col);
 		return true;
@@ -208,5 +212,44 @@ public class Client extends UnicastRemoteObject implements IClient,
 	public void gameWon(Player player) {
 		System.out.println("Player " + player.getId() + " wins.");
 	}
+	
+	
+	public static String getLocalIp() {
+		String ip;
+		try {
+			// go through all network interfaces
+	        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+	        while (interfaces.hasMoreElements()) {
+	            NetworkInterface iface = interfaces.nextElement();
+	            // filter out loopback and inactive interfaces
+	            if (iface.isLoopback() || !iface.isUp() )
+	                continue;
 
+	            // go through all remaining interfaces
+	            Enumeration<InetAddress> addresses = iface.getInetAddresses();
+	            while(addresses.hasMoreElements()) {
+	                InetAddress addr = addresses.nextElement();
+	                // filter out IPv6 addresses
+	                if (addr instanceof Inet6Address)
+                		continue;
+	                ip = addr.getHostAddress();
+	                //System.out.println("My IP: " + ip + " "+showMessage iface.getDisplayName());
+	                return ip;
+	            }
+	        }
+	        return null;
+	    } catch (SocketException e) {
+	        return null;
+	    }
+	}
+	
+	public void showMessage(String msg) {
+		showMessage(msg, true);
+	}
+	
+	public void showMessage(String msg, boolean console) {
+		frame.showMessage(msg);
+		if (console)
+			System.out.println(msg);
+	}
 }
