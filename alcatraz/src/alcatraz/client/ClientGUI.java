@@ -125,7 +125,7 @@ public class ClientGUI extends JFrame {
 						outputArea.append("Username already taken or Server not found!");
 					}
 				} else {
-					outputArea.append("Please fill out all the fields.\n");
+					outputArea.append("Please fill out all fields.\n");
 				}
 
 			}
@@ -138,8 +138,7 @@ public class ClientGUI extends JFrame {
 		scrollPane.setBounds(10, 193, 200, 274);
 		contentPane.add(scrollPane);
 
-		outputArea = new JTextArea();
-		outputArea.setEnabled(false);
+		outputArea = new JTextArea(); 
 		outputArea.setEditable(false);
 		scrollPane.setViewportView(outputArea);
 
@@ -199,9 +198,22 @@ public class ClientGUI extends JFrame {
 		return allClear;
 	}
 	
+	public void setRegisterButton(boolean state) {
+		btnRegister.setEnabled(state);
+	}
+	
+	public void setUnregisterButton(boolean state) {
+		btnRegister.setEnabled(state);
+	}
+	
+	// place the game board on the right side of the window
 	public void setBoard(JPanel board) {
 		board.setBounds(230, 0, 550, 700);
 		contentPane.add(board);
 	}
 
+	// place the game board on the right side of the window
+	public void message(String s) {
+		outputArea.append(s);
+	}
 }

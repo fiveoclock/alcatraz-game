@@ -246,14 +246,10 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 
 	private void publishObject() {
 		try {
-			InetAddress address = InetAddress.getLocalHost();
-			String ipAddress = address.getHostAddress();
-
-			System.out.println("Server is starting");
-			//System.out.println("Server Parameter is now setting...");
-			//System.out.println("Serverparameters are set!");
-			System.out.println("ServerIP: " + ipAddress + "\n");
-
+			//InetAddress address = InetAddress.getLocalHost(); 
+			//String ipAddress = address.getHostAddress();
+			String ipAddress = "0.0.0.0";
+			System.out.println("Server is starting...");
 			IServer IS = new Server();
 			Naming.rebind("rmi://" + ipAddress + ":1099/RegistrationService", IS);
 			

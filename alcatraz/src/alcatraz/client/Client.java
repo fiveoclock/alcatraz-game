@@ -25,15 +25,10 @@ public class Client extends UnicastRemoteObject implements IClient,
 
 	private static final long serialVersionUID = 1L;
 
-	// TODO remove the next 4 variables out of the system - these things are all
-	// accessible from the RemotePlayer object
 	private ClientGUI frame;
-	private String name;
-	private String serverAdr;
-	private int numPlayer;
+	private Alcatraz a;
 	private int myId;
 	private ArrayList<RemotePlayer> playerList = new ArrayList<RemotePlayer>();
-	private Alcatraz a = new Alcatraz();
 	
 
 	// ================================================================================
@@ -50,13 +45,19 @@ public class Client extends UnicastRemoteObject implements IClient,
 	// CONSTRUCTOR
 
 	public Client() throws RemoteException {
+		// generate a RemotePlayer instance for ourself
 		RemotePlayer p = new RemotePlayer(this);
+
+		// create an instance of Alcatraz add add this class as listener for moves
+		a = new Alcatraz();
+		a.addMoveListener(this);
+
+		// generate the GUI
 		frame = new ClientGUI(p);
 		frame.setTitle("Alcatraz");
+		// add the gameBoard to our GUI
 		frame.setBoard(a.getGameBoard());
-		
 		frame.setVisible(true);
-		a.addMoveListener(this);
 	}
 	
 
@@ -102,7 +103,6 @@ public class Client extends UnicastRemoteObject implements IClient,
 		boolean unregistrationSuccess = false;
 		
 		try {
-			
 			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr()
 					+ ":1099/RegistrationService");
 			System.out.print("Registration proceed...");
@@ -165,7 +165,6 @@ public class Client extends UnicastRemoteObject implements IClient,
 		// setup the game
 		a.init(playerList.size(), this.myId);
 		a.start();
-		//a.showWindow();
 		
 		return true;
 	}
@@ -208,34 +207,6 @@ public class Client extends UnicastRemoteObject implements IClient,
 
 	public void gameWon(Player player) {
 		System.out.println("Player " + player.getId() + " wins.");
-	}
-
-	// ================================================================================
-	// ================================================================================
-	// GETTERS AND SETTERS
-
-	public int getNumPlayer() {
-		return numPlayer;
-	}
-
-	public void setNumPlayer(int numPlayer) {
-		this.numPlayer = numPlayer;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getServerAdr() {
-		return serverAdr;
-	}
-
-	public void setServerAdr(String serverAdr) {
-		this.serverAdr = serverAdr;
 	}
 
 }
