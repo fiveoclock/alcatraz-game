@@ -27,11 +27,11 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 
 	private static final long serialVersionUID = 1L;
 
-	private ClientGUI frame;
-	private Alcatraz a;
+	private static ClientGUI frame; 
+	private static Alcatraz a;
 	private int myId;
 	private ArrayList<RemotePlayer> playerList = new ArrayList<RemotePlayer>();
-
+	
 
 	// ================================================================================
 	// ================================================================================
@@ -40,19 +40,11 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 	public static void main(String[] args) throws RemoteException {
 		// A new Client opens the GUI in its constructor
 		IClient IC = new Client();
-	}
 
-	// ================================================================================
-	// ================================================================================
-	// CONSTRUCTOR
-
-	public Client() throws RemoteException {
 		// generate a RemotePlayer instance for ourself
-		RemotePlayer p = new RemotePlayer(this);
+		RemotePlayer p = new RemotePlayer(IC);
 
-		// create an instance of Alcatraz add add this class as listener for moves
-		a = new Alcatraz();
-		a.addMoveListener(this);
+		
 
 		// generate the GUI
 		frame = new ClientGUI(p);
@@ -60,6 +52,17 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 		// add the gameBoard to our GUI
 		frame.setBoard(a.getGameBoard());
 		frame.setVisible(true);
+	}
+
+	// ================================================================================
+	// ================================================================================
+	// CONSTRUCTOR
+
+	public Client() throws RemoteException {
+		// create an instance of Alcatraz add add this class as listener for
+		// moves
+		a = new Alcatraz();
+		a.addMoveListener(this);
 	}
 
 
