@@ -1,4 +1,4 @@
 #!/bin/bash
 
-export CLASSPATH=bin:alcatraz-lib.jar
+export CLASSPATH=bin:lib/alcatraz-lib.jar
 rmiregistry
