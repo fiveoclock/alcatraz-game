@@ -3,11 +3,14 @@
 package alcatraz.server;
 
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
+import alcatraz.IClient;
 import alcatraz.IClientException;
 import alcatraz.IServerException;
 import alcatraz.IServer;
@@ -272,6 +275,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	 */
 	@Override
 	public boolean register(RemotePlayer p) throws IServerException, RemoteException, IClientException {
+				
 		// check if the desired player name is free
 		if (playerList.toString().contains(p.getName())) {
 			System.out.println("A player by the name of " + p.getName() + " is already registered.");
