@@ -250,13 +250,20 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	// ================================================================================
 	// REGISTRY STUFF
 
+	/**
+	 * Publish the Server Object so the clients can register.
+	 *
+	 * @author 
+	 */
 	private void publishObject() {
 		try {
-			//InetAddress address = InetAddress.getLocalHost(); 
-			//String ipAddress = address.getHostAddress();
-			String ipAddress = "192.168.0.15";
+			// get IP address
+			InetAddress address = InetAddress.getLocalHost(); 
+			String ipAddress = address.getHostAddress();
 			
+			// start the server
 			System.out.println("Server is starting...");
+			System.out.println("Server IP is: " + ipAddress);
 			IServer IS = new Server();
 			Naming.rebind("rmi://" + ipAddress + ":1099/RegistrationService", IS);
 			
