@@ -1,7 +1,9 @@
-//TODO implement self created exceptions for register and unregister and all the methods yet to come
-
 package alcatraz.server;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -10,16 +12,16 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
+import spread.AdvancedMessageListener;
+import spread.MembershipInfo;
+import spread.SpreadConnection;
+import spread.SpreadGroup;
+import spread.SpreadMessage;
 import alcatraz.IClient;
 import alcatraz.IClientException;
-import alcatraz.IServerException;
 import alcatraz.IServer;
+import alcatraz.IServerException;
 import alcatraz.RemotePlayer;
-
-
-import spread.*;
-
-import java.io.*;
 
 public class Server extends UnicastRemoteObject implements IServer, AdvancedMessageListener {
 
@@ -32,6 +34,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	private String spreadGroup = "maulwurf";
 	private SpreadGroup spreadSelf;
 	private SpreadConnection spread = new SpreadConnection();
+	
 
 	// ================================================================================
 	// ================================================================================
@@ -251,12 +254,15 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		try {
 			//InetAddress address = InetAddress.getLocalHost(); 
 			//String ipAddress = address.getHostAddress();
-			String ipAddress = "0.0.0.0";
+			String ipAddress = "192.168.0.15";
+			
 			System.out.println("Server is starting...");
 			IServer IS = new Server();
 			Naming.rebind("rmi://" + ipAddress + ":1099/RegistrationService", IS);
 			
+			// success
 			System.out.println("RegistrationServer is up and running.");
+			
 		} catch (Exception e) {
 			System.out.println("Error!");
 			e.printStackTrace();
@@ -283,9 +289,9 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		}
 		// if the player name is free add the player to the list
 		playerList.add(p);
-		System.out.println("\"" + p.getName() + "\" has registered. " + 
-				"GameSize: " + p.getDesiredNumPlayers() + 
-				"RMI URI: "+ p.getRmiUri() );
+		System.out.println("\"" + p.getName() + "\" has registered. "
+				+ "(GameSize: " + p.getDesiredNumPlayers() + " " + "RMIURI: "
+				+ p.getRmiUri() + ")");
 		
 		// count all registered players that want to play with the same number of players
 		int count = 0;
@@ -294,6 +300,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 				count++;
 			}
 		}
+		
 		// if there are enough players, start a game right away
 		if (count == p.getDesiredNumPlayers()) {
 			System.out.println("Enough players registered to start a game - starting now.");
@@ -317,6 +324,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		for (RemotePlayer s : playerList) {
 			if (s.getName().equals(p.getName())) {
 				playerList.remove(s);
+				System.out.println("\"" + p.getName() + "\" has unregistered. ");
 				sendObject(playerList);
 				return true;
 			}
@@ -326,14 +334,15 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 
 	@Override
 	// method for starting a game and informing the players about the game start
-	public boolean startNow(int numPlayers) throws RemoteException, IClientException {
+	public boolean startNow(int numPlayers) throws RemoteException,
+			IClientException {
 		ArrayList<RemotePlayer> gameList = new ArrayList<RemotePlayer>();
-		
+
 		// add Players to a temporary gameList
 		int count = 0;
-		for (RemotePlayer p : playerList ) {
+		for (RemotePlayer p : playerList) {
 			if (numPlayers == p.getDesiredNumPlayers()) {
-				p.setId(count);  // give each player a unique id
+				p.setId(count); // give each player a unique id
 				gameList.add(p);
 				count++;
 			}
@@ -344,21 +353,36 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		}
 
 		// go through all players in the gamelist
-		for (RemotePlayer p : gameList ) {
-			System.out.print("Invoking start on \"" + p.getName() +"\" ... ");
-			// notify the players about the game start
-			if (p.getIC().startGame(gameList, p)) {
-				System.out.print("success\n");
-			}
-			else {
-				System.out.print("fail\n");
+		for (RemotePlayer p : gameList) {
+			System.out
+					.println("Invoking start on \"" + p.getName() + "\" ... ");
+
+			//
+			try {
+				System.out.println(p.getRmiUri());
+				IClient IC = (IClient) Naming.lookup(p.getRmiUri());
+
+				// notify the players about the game start
+				if (IC.startGame(gameList, p)) {
+					System.out.print("success\n");
+				} else {
+					System.out.print("fail\n");
+					playerList.remove(p);
+					sendObject(playerList);
+					return false;
+				}
+				// remove the players from the global playerList
 				playerList.remove(p);
 				sendObject(playerList);
-				return false;
+
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NotBoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			// remove the players from the global playerList
-			playerList.remove(p);
-			sendObject(playerList);
+
 		}
 		return true;
 	}
