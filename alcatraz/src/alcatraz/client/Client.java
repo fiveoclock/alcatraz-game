@@ -1,6 +1,5 @@
 package alcatraz.client;
 
-import java.util.*;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -8,15 +7,13 @@ import java.net.SocketException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.Enumeration;
 
-import javax.annotation.processing.Messager;
-
-import alcatraz.IServerException;
-import alcatraz.IServer;
-import alcatraz.IClientException;
 import alcatraz.IClient;
-//import alcatraz.Player; // use provided Alcatraz player class
-
+import alcatraz.IClientException;
+import alcatraz.IServer;
+import alcatraz.IServerException;
 import alcatraz.RemotePlayer;
 import at.falb.games.alcatraz.api.Alcatraz;
 import at.falb.games.alcatraz.api.MoveListener;
@@ -38,13 +35,11 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 	// MAIN
 
 	public static void main(String[] args) throws RemoteException {
-		// A new Client opens the GUI in its constructor
+		
 		IClient IC = new Client();
 
 		// generate a RemotePlayer instance for ourself
 		RemotePlayer p = new RemotePlayer(IC);
-
-		
 
 		// generate the GUI
 		frame = new ClientGUI(p);
@@ -79,14 +74,19 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 	 * Returns <b>false</b> if the registration failed.
 	 */
 	public static boolean registerPlayer(RemotePlayer p) {
+		
 		boolean registerSuccess = false;
+
 		try {
-			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr() + ":1099/RegistrationService");
-			System.out.print("Registration proceed... (IP: "+p.getServerAdr() + "\n");
+			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr()
+					+ ":1099/RegistrationService");
+			System.out.print("Registration proceed... (IP: " + p.getServerAdr()
+					+ ")\n");
 			registerSuccess = IS.register(p);
 
 		} catch (IServerException ISe) {
-			System.err.println("Registration threw Exception: " + ISe.getMessage());
+			System.err.println("Registration threw Exception: "
+					+ ISe.getMessage());
 			ISe.printStackTrace();
 		} catch (Exception e) {
 			System.err.println("Something did not work, see stack trace.");
@@ -107,11 +107,12 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 
 		try {
 			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr() + ":1099/RegistrationService");
-			System.out.print("Registration proceed...");
+			System.out.print("Unregistration proceed...");
 			unregistrationSuccess = IS.unregister(p);
+			//System.out.println("");
 
 		} catch (IServerException ISe) {
-			System.err.println("Registration throw Exception: " + ISe.getMessage());
+			System.err.println("Unregistration throw Exception: " + ISe.getMessage());
 			ISe.printStackTrace();
 		} catch (Exception e) {
 			System.err.println("Something did not work, see stack trace.");
@@ -128,31 +129,27 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 	 * @author max
 	 */
 	public static String publishObject(RemotePlayer p) {
+
 		try {
-			System.out.println("Client is being published");
-			
-			// determine the local IP address
 			String ip = getLocalIp();
-			if (ip == null ) {
-				System.out.println("Couldn't find out my IP - are you connected to a network?");
+			System.out.println("Publish client object");
+			if (ip == null) {
+				System.out
+						.println("Couldn't find out my IP - are you connected to a network?");
 				return null;
 			}
 
-			// publish the interface on all IPs 
-			String rmiUri = "rmi://" + "0.0.0.0" + ":1099/" + p.getName();
-			//Naming.rebind(rmiUri, p.getIC());
-			
-			// let the others know the RMI with the real IP
-			rmiUri = "rmi://" + ip + ":1099/" + p.getName();
+			// publish the interface on all IPs
+			String rmiUri = "rmi://" + ip + ":1099/" + p.getName();
 			Naming.rebind(rmiUri, p.getIC());
-			System.out.println("Client Services started - (" + rmiUri +")");
+			System.out.println("Client Services started - (" + rmiUri + ")");
 			return rmiUri;
-			
+
 		} catch (Exception e) {
 			System.out.println("Error!");
 			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
 	
@@ -216,7 +213,11 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 		System.out.println("Player " + player.getId() + " wins.");
 	}
 	
-	
+	//TODO overkill function? maybe delete an use this instead:
+	/*
+	 * InetAddress address = InetAddress.getLocalHost(); 
+	 * String ipAddress = address.getHostAddress();
+	 */
 	public static String getLocalIp() {
 		String ip;
 		try {

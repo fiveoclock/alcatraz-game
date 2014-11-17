@@ -1,8 +1,8 @@
 package alcatraz.client;
 
 import java.awt.Label;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -79,9 +79,9 @@ public class ClientGUI extends JFrame {
 		group.add(rb4players);
 
 		btnUnregister = new JButton("unregister");
-		btnUnregister.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
+		btnUnregister.addActionListener(new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent ae) {
 				if(Client.unregisterPlayer(p) == true) {
 					btnUnregister.setEnabled(false);
 					btnRegister.setEnabled(true);
@@ -99,9 +99,9 @@ public class ClientGUI extends JFrame {
 		contentPane.add(btnUnregister);
 
 		btnRegister = new JButton("register");
-		btnRegister.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
+		btnRegister.addActionListener(new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent ae) {
 
 				if (gatherFieldInformation(p) == true) {
 					
