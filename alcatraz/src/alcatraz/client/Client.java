@@ -196,7 +196,6 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 				while (! status ) {
 					try {
 						status = p.getIC().doMoveRemote(player, prisoner, rowOrCol, row, col);
-						//status = true;
 					} catch (Exception e) {
 						System.out.println("Sending move to " + player.getName() + " failed, retrying...");
 						try{
