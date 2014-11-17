@@ -82,7 +82,11 @@ public class ClientGUI extends JFrame {
 		btnUnregister.addActionListener(new ActionListener() {
 		    @Override
 		    public void actionPerformed(ActionEvent ae) {
-				if(Client.unregisterPlayer(p) == true) {
+				// get the backup server address
+				p.setServerAdr(tfServerAdr.getText());
+				
+		    	// unregister player
+		    	if(Client.unregisterPlayer(p) == true) {
 					btnUnregister.setEnabled(false);
 					btnRegister.setEnabled(true);
 					outputArea.append("You successfully unregistered!\n");
