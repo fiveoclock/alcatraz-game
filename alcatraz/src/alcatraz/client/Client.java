@@ -213,7 +213,11 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 		System.out.println("Player " + player.getId() + " wins.");
 	}
 	
-	
+	//TODO overkill function? maybe delete an use this instead:
+	/*
+	 * InetAddress address = InetAddress.getLocalHost(); 
+	 * String ipAddress = address.getHostAddress();
+	 */
 	public static String getLocalIp() {
 		String ip;
 		try {

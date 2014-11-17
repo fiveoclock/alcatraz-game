@@ -339,8 +339,15 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 		return false;
 	}
 
-	@Override
-	// method for starting a game and informing the players about the game start
+	/**
+	 * Method for starting a game and informing the players about the game start.
+	 *
+	 * @author 
+	 * @param numPlayers
+	 * @return
+	 * @throws RemoteException
+	 * @throws IClientException
+	 */
 	public boolean startNow(int numPlayers) throws RemoteException,
 			IClientException {
 		ArrayList<RemotePlayer> gameList = new ArrayList<RemotePlayer>();
@@ -383,10 +390,8 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 				sendObject(playerList);
 
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (NotBoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 

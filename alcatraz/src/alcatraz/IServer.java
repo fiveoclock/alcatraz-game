@@ -5,8 +5,6 @@ import java.rmi.RemoteException;
 
 public interface IServer extends Remote {
 
-  public boolean startNow(int numPlayers) throws RemoteException, IClientException; 
-
   /**
    * 
    * @param p a player object
