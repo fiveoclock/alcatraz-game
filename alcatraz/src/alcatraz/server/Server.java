@@ -360,7 +360,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 				gameList.add(p);
 				count++;
 			}
-			// stop adding players when the game is complete
+			// stop adding players when the list is complete
 			if (gameList.size() == numPlayers) {
 				break;
 			}

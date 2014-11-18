@@ -165,6 +165,7 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 	public boolean startGame(ArrayList<RemotePlayer> playerList, RemotePlayer me) throws IClientException, RemoteException {
 		this.myId = me.getId();
 		this.playerList = playerList;
+	
 		
 		// disable unregister button
 		frame.setUnregisterButton(false);
@@ -172,6 +173,14 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 		// setup the game
 		a.init(playerList.size(), this.myId);
 		a.start();
+		
+		//show other playernames
+				frame.getOutputArea().append("Players participating in this game: \n");
+				for (RemotePlayer s : this.playerList)
+				{
+					frame.getOutputArea().append(s.getName() + "\n");
+				}
+				frame.getOutputArea().append(" \n");
 		
 		return true;
 	}
@@ -197,7 +206,9 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 					try {
 						status = p.getIC().doMoveRemote(player, prisoner, rowOrCol, row, col);
 					} catch (Exception e) {
-						System.out.println("Sending move to " + player.getName() + " failed, retrying...");
+						System.out.println("Sending move to " + p.getName() + " failed, retrying...");
+						// TODO: check 
+						// frame.getOutputArea().append("\n" + "player:  " + p.getName() + " was offline.");
 						try{
 							Thread.sleep(1000);
 						}

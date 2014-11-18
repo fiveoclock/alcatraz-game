@@ -10,13 +10,11 @@ import at.falb.games.alcatraz.api.*;
 public interface IClient extends Remote {
 	
 	/**
-	 * This must be called by the server when either there are 4 players registered or
-	 * if a player issues a startNow() to the server.
+	 * This must be called by the server when the desired player number (2, 3, 4) list is full.
 	 * 
 	 * @param playerList
 	 * @throws IClientException
 	 * @throws RemoteException
-	 * @author max
 	 */
 	public boolean startGame(ArrayList<RemotePlayer> playerList, RemotePlayer player) throws IClientException, RemoteException;
 	
