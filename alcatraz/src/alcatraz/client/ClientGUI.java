@@ -16,6 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import alcatraz.RemotePlayer;
+import alcatraz.server.Server;
 
 public class ClientGUI extends JFrame {
 
@@ -104,7 +105,7 @@ public class ClientGUI extends JFrame {
 
 		btnRegister = new JButton("register");
 		btnRegister.addActionListener(new ActionListener() {
-		    @Override
+		    //@Override
 		    public void actionPerformed(ActionEvent ae) {
 
 				if (gatherFieldInformation(p) == true) {
@@ -115,15 +116,16 @@ public class ClientGUI extends JFrame {
 					 */
 					
 					p.setRmiUri(Client.publishObject(p));
-
+				
 					if(Client.registerPlayer(p) == true) {
-						btnRegister.setEnabled(false);
-						btnUnregister.setEnabled(true);
+						setRegisterButton(false);
+						setUnregisterButton(true); 
 						getOutputArea().append("You successfully registered:\n");
 						getOutputArea().append("Name: " + p.getName() + "\n");
 						getOutputArea().append("Server: " + p.getServerAdr() + "\n");
-						getOutputArea().append("Game for: " + p.getDesiredNumPlayers() + "\n");
+						getOutputArea().append("Game for: " + p.getDesiredNumPlayers() + "\n\n");
 						setTitle("Alcatraz - " + p.getName());
+					
 					}
 					else {
 						getOutputArea().append("Username already taken or Server not found!");
@@ -207,7 +209,7 @@ public class ClientGUI extends JFrame {
 	}
 	
 	public void setUnregisterButton(boolean state) {
-		btnRegister.setEnabled(state);
+		btnUnregister.setEnabled(state);
 	}
 	
 	// place the game board on the right side of the window

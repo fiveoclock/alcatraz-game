@@ -18,6 +18,7 @@ public interface IClient extends Remote {
 	 */
 	public boolean startGame(ArrayList<RemotePlayer> playerList, RemotePlayer player) throws IClientException, RemoteException;
 	
+	
 	/**
 	 * This function is to propagate a move to the other players.
 	 * @param player

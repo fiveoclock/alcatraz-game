@@ -166,22 +166,21 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 		this.myId = me.getId();
 		this.playerList = playerList;
 	
-		
 		// disable unregister button
 		frame.setUnregisterButton(false);
-		
+				
 		// setup the game
 		a.init(playerList.size(), this.myId);
 		a.start();
 		
 		//show other playernames
-				frame.getOutputArea().append("Players participating in this game: \n");
-				for (RemotePlayer s : this.playerList)
-				{
-					frame.getOutputArea().append(s.getName() + "\n");
-				}
-				frame.getOutputArea().append(" \n");
-		
+		frame.getOutputArea().setText("");
+		frame.getOutputArea().append("Players participating in this game: \n");
+		for (RemotePlayer s : this.playerList)
+		{
+			frame.getOutputArea().append(s.getName() + "\n");
+		}
+		frame.getOutputArea().append(" \n");
 		return true;
 	}
 
