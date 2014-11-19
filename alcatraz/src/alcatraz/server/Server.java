@@ -368,18 +368,18 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 
 		// go through all players in the gamelist
 		for (RemotePlayer p : gameList) {
-			System.out
-					.println("Invoking start on \"" + p.getName() + "\" ... ");
+			System.out.println("Invoking start on \"" + p.getName() + "\" ... ");
 
 			//
 			try {
-				System.out.println(p.getRmiUri());
 				IClient IC = (IClient) Naming.lookup(p.getRmiUri());
 
 				// notify the players about the game start
 				if (IC.startGame(gameList, p)) {
 					System.out.print("success\n");
 				} else {
+					// if the game cannot be started at a player remove him 
+					// from the list and stop with function
 					System.out.print("fail\n");
 					playerList.remove(p);
 					sendObject(playerList);

@@ -218,7 +218,7 @@ public class ClientGUI extends JFrame {
 		contentPane.add(board);
 	}
 
-	// place the game board on the right side of the window
+	// send a message to the output area
 	public void showMessage(String s) {
 		getOutputArea().append(s);
 	}
