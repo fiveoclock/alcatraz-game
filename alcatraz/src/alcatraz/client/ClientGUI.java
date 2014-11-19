@@ -125,6 +125,7 @@ public class ClientGUI extends JFrame {
 						getOutputArea().append("Server: " + p.getServerAdr() + "\n");
 						getOutputArea().append("Game for: " + p.getDesiredNumPlayers() + "\n\n");
 						setTitle("Alcatraz - " + p.getName());
+						
 						if (Client.startgameInt == 1){
 							setUnregisterButton(false);
 						}

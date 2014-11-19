@@ -172,7 +172,7 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 		// setup the game
 		a.init(playerList.size(), this.myId);
 		a.start();
-		
+
 		//show other playernames
 		frame.getOutputArea().setText("");
 		frame.getOutputArea().append("Players participating in this game: \n");
