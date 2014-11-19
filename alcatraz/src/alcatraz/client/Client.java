@@ -28,7 +28,7 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 	private static Alcatraz a;
 	private int myId;
 	private ArrayList<RemotePlayer> playerList = new ArrayList<RemotePlayer>();
-	
+	static int startgameInt = 0;
 
 	// ================================================================================
 	// ================================================================================
@@ -181,6 +181,7 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 			frame.getOutputArea().append(s.getName() + "\n");
 		}
 		frame.getOutputArea().append(" \n");
+		startgameInt = 1;
 		return true;
 	}
 
@@ -222,7 +223,7 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 		System.out.println("Player " + player.getId() + " wins. You can now register for another game.");
 		
 		//reset GUI for registration again
-		frame.getOutputArea().setText("");
+		frame.getOutputArea().append("Player " + player.getId() + " wins. You can now register for another game.");
 		frame.setRegisterButton(true);
 		
 		
