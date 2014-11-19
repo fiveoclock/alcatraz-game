@@ -219,7 +219,13 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 	}
 
 	public void gameWon(Player player) {
-		System.out.println("Player " + player.getId() + " wins.");
+		System.out.println("Player " + player.getId() + " wins. You can now register for another game.");
+		
+		//reset GUI for registrating again
+		frame.getOutputArea().setText("");
+		frame.setRegisterButton(true);
+		
+		
 	}
 	
 	//TODO overkill function? maybe delete an use this instead:
