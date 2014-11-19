@@ -351,7 +351,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	public boolean startNow(int numPlayers) throws RemoteException,
 			IClientException {
 		ArrayList<RemotePlayer> gameList = new ArrayList<RemotePlayer>();
-
+		
 		// add Players to a temporary gameList
 		int count = 0;
 		for (RemotePlayer p : playerList) {
@@ -360,7 +360,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 				gameList.add(p);
 				count++;
 			}
-			// stop adding players when the game is complete
+			// stop adding players when the list is complete
 			if (gameList.size() == numPlayers) {
 				break;
 			}

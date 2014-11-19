@@ -16,6 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import alcatraz.RemotePlayer;
+import alcatraz.server.Server;
 
 public class ClientGUI extends JFrame {
 
@@ -82,13 +83,17 @@ public class ClientGUI extends JFrame {
 		btnUnregister.addActionListener(new ActionListener() {
 		    @Override
 		    public void actionPerformed(ActionEvent ae) {
-				if(Client.unregisterPlayer(p) == true) {
+				// get the backup server address
+				p.setServerAdr(tfServerAdr.getText());
+				
+		    	// unregister player
+		    	if(Client.unregisterPlayer(p) == true) {
 					btnUnregister.setEnabled(false);
 					btnRegister.setEnabled(true);
-					outputArea.append("You successfully unregistered!\n");
+					getOutputArea().append("You successfully unregistered!\n");
 				}
 				else {
-					outputArea.append("Could not unregister!\n");
+					getOutputArea().append("Could not unregister!\n");
 				}
 				
 				
@@ -100,7 +105,7 @@ public class ClientGUI extends JFrame {
 
 		btnRegister = new JButton("register");
 		btnRegister.addActionListener(new ActionListener() {
-		    @Override
+		    //@Override
 		    public void actionPerformed(ActionEvent ae) {
 
 				if (gatherFieldInformation(p) == true) {
@@ -111,21 +116,22 @@ public class ClientGUI extends JFrame {
 					 */
 					
 					p.setRmiUri(Client.publishObject(p));
-
+				
 					if(Client.registerPlayer(p) == true) {
-						btnRegister.setEnabled(false);
-						btnUnregister.setEnabled(true);
-						outputArea.append("You successfully registered:\n");
-						outputArea.append("Name: " + p.getName() + "\n");
-						outputArea.append("Server: " + p.getServerAdr() + "\n");
-						outputArea.append("Game for: " + p.getDesiredNumPlayers() + "\n");
+						setRegisterButton(false);
+						setUnregisterButton(true); 
+						getOutputArea().append("You successfully registered:\n");
+						getOutputArea().append("Name: " + p.getName() + "\n");
+						getOutputArea().append("Server: " + p.getServerAdr() + "\n");
+						getOutputArea().append("Game for: " + p.getDesiredNumPlayers() + "\n\n");
 						setTitle("Alcatraz - " + p.getName());
+					
 					}
 					else {
-						outputArea.append("Username already taken or Server not found!");
+						getOutputArea().append("Username already taken or Server not found!");
 					}
 				} else {
-					outputArea.append("Please fill out all fields.\n");
+					getOutputArea().append("Please fill out all fields.\n");
 				}
 
 			}
@@ -138,9 +144,9 @@ public class ClientGUI extends JFrame {
 		scrollPane.setBounds(10, 193, 200, 274);
 		contentPane.add(scrollPane);
 
-		outputArea = new JTextArea(); 
-		outputArea.setEditable(false);
-		scrollPane.setViewportView(outputArea);
+		setOutputArea(new JTextArea()); 
+		getOutputArea().setEditable(false);
+		scrollPane.setViewportView(getOutputArea());
 
 	}
 
@@ -203,7 +209,7 @@ public class ClientGUI extends JFrame {
 	}
 	
 	public void setUnregisterButton(boolean state) {
-		btnRegister.setEnabled(state);
+		btnUnregister.setEnabled(state);
 	}
 	
 	// place the game board on the right side of the window
@@ -214,6 +220,16 @@ public class ClientGUI extends JFrame {
 
 	// place the game board on the right side of the window
 	public void showMessage(String s) {
-		outputArea.append(s);
+		getOutputArea().append(s);
 	}
+
+	public JTextArea getOutputArea() {
+		return outputArea;
+	}
+
+	public void setOutputArea(JTextArea outputArea) {
+		this.outputArea = outputArea;
+	}
+	
+	
 }
